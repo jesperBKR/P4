@@ -13,6 +13,8 @@
 #include <QApplication>
 #include "../include/testing/newstuff.hpp"
 #include "../include/testing/progress.hpp"
+#include <QDesktopWidget>
+
 
 /*****************************************************************************
 ** Main
@@ -25,11 +27,16 @@ int main(int argc, char **argv) {
     **********************/
     QApplication app(argc, argv);
   //  Worker w;
+    QDesktopWidget dw;
+    int x=dw.width()*0.5;
+    int y=dw.height()*0.5;
     newstuff ns(argc,argv);
     progress p(argc, argv);
+    ns.setFixedSize(x,y);
+    p.setFixedSize(x,y);
     ns.show();
-    p.show();
-    app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
+    app.setQuitOnLastWindowClosed(false);
+      app.connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     int result = app.exec();
 
 	return result;
