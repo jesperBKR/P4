@@ -3,6 +3,14 @@
 
 This repository holds the software developed for the 4th semester project in robotics at AAU.
 
+Prerequisites
+-------------
+To be able to use this package the following needs to installed before:
+* ROS Kinetic or later
+* librealsense
+* Opencv 2.4 or higher
+* Qt 5.0
+
 Basic Information
 ------------
 The project consist of a JACO arm and an IntelRealsense camera.
