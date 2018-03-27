@@ -171,6 +171,8 @@ public:
     QStringList itemList;
     QStringList stageList;
     QString cbox;
+Q_SIGNALS:
+  void startUp();
 public Q_SLOTS:
   void on_fugl0Button_clicked();
   void on_fugl1Button_clicked();
