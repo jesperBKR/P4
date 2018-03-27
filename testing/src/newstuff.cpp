@@ -6,20 +6,35 @@
 #include <QThread>
 #include <string>
 #include <std_msgs/String.h>
+#include <std_msgs/Int16.h>
 #include <sstream>
 #include <QMessageBox>
-
-
+#include <QVariant>
+#include <QPalette>
+int reps;
+int current_stage;
+QString easy_exercise1,easy_exercise2,easy_exercise3,easy_exercise4;
+QString normal_exercise1,normal_exercise2,normal_exercise3,normal_exercise4;
+QString hard_exercise1,hard_exercise2,hard_exercise3,hard_exercise4;
 newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::newstuff),
   init_argc(argc),
-  init_argv(argv),
-  wrk(argc,argv)
+  init_argv(argv)
+  //wrk(argc,argv)
   {
   itemList << "1" << "2" << "3" << "4" << "5" << "6" << "7" << "8" << "9" <<"10" <<"11" << "12" << "13" << "14" << "15";
+  stageList << "Easy" <<"Medium" <<"Hard";
+  easy_exercise1 ="";normal_exercise1 ="";hard_exercise1 ="";easy_exercise2 ="";normal_exercise2 ="";hard_exercise2 ="";easy_exercise3 ="";normal_exercise3 ="";hard_exercise3 ="";
   ui->setupUi(this);
-  ui->exerciseArea->setTitle("Exercise difficulty not set");
+  this->setStyleSheet("background-color: white;");
+  ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
   ui->exerciseButton_1->setText("Exercises not set");
   ui->exerciseButton_1->setEnabled(false);
   ui->exerciseButton_2->setText("Exercises not set");
@@ -28,6 +43,17 @@ newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   ui->exerciseButton_3->setEnabled(false);
   ui->exerciseButton_4->setText("Exercises not set");
   ui->exerciseButton_4->setEnabled(false);
+  ui->statusLabel->setText("Difficulty");
+  ui->menuBar->setStyleSheet("QMenuBar::item{background-color:white;}");
+  //ui->labelLayout->setStyleSheet("border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
+  ui->exerciseArea->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
+  ui->status_Area->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
+  //ui->menuFile->setStyleSheet("menuBar::item {background-color: transparent;");
+
+  //ui->menuFile->setStyleSheet("background-color: red;");
+  //ui->menuBar->setStyleSheet("background-color: white);");
+  //ui->menuFile->setStyleSheet("background-color: white);");
+  reps =0;
   prg = new progress(argc,argv);
   QRect position = frameGeometry();
   position.moveCenter(QDesktopWidget().availableGeometry().center());
@@ -59,10 +85,9 @@ init_argc(argc),
 init_argv(argv)
 {
 ros_ready = false;
-name = "I'm publishing yay! ";
 ros::init(init_argc,init_argv,"testing");
 ros::NodeHandle n;
-chatter_publisher = n.advertise<std_msgs::String>("This_topic", 1000);
+chatter_publisher = n.advertise<std_msgs::Int16>("This_topic", 1000);
 }
 Worker::~Worker(){
 
@@ -76,30 +101,37 @@ bool Worker::init(){
   ros::start(); // explicitly needed since our nodehandle is going out of scope.
   ros::NodeHandle n;
   // Add your ros communications here.
-  chatter_publisher = n.advertise<std_msgs::String>("This_topic", 1000);
+  chatter_publisher = n.advertise<std_msgs::Int16>("This_topic", 1000);
   return true;
 }
 
 void Worker::run() {
 
 	ros::Rate loop_rate(1);
-	int count = 0;
 	while ( ros::ok() ) {
-		std_msgs::String msg;
-		std::stringstream ss;
-		ss << name << count;
-		msg.data = ss.str();
-		chatter_publisher.publish(msg);
-    std::cout<< "Test"<<std:: endl;
+    std_msgs::Int16 dat;
+    dat.data = reps;
+		chatter_publisher.publish(dat);
 		ros::spinOnce();
 		loop_rate.sleep();
-		++count;
 	}
   std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
   Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 void newstuff::unhide(){
   this->show();
+  ui->exerciseButton_1->setEnabled(false);
+  ui->exerciseButton_2->setEnabled(false);
+  ui->exerciseButton_3->setEnabled(false);
+  ui->exerciseButton_4->setEnabled(false);
+  ui->statusLabel->setText("Difficulty");
+  ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
 }
 void newstuff::showNoMasterMessage() {
 		QMessageBox msgBox;
@@ -132,11 +164,18 @@ void newstuff::on_fugl0Button_clicked(){
     ui->exerciseButton_2->setEnabled(true);
     ui->exerciseButton_3->setEnabled(true);
     ui->exerciseButton_4->setEnabled(true);
-    ui->exerciseButton_1->setText("Exercise 0.1 Placeholder");
-    ui->exerciseButton_2->setText("Exercise 0.2 Placeholder");
-    ui->exerciseButton_3->setText("Exercise 0.3 Placeholder");
-    ui->exerciseButton_4->setText("Exercise 0.4 Placeholder");
-    ui->exerciseArea->setTitle("Exercise difficulty = 0");
+    ui->exerciseButton_1->setText(easy_exercise1);
+    ui->exerciseButton_2->setText(easy_exercise2);
+    ui->exerciseButton_3->setText(easy_exercise3);
+    ui->exerciseButton_4->setText(easy_exercise4);
+    ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Easy");
   }
   else {
     ui->exerciseButton_1->setEnabled(false);
@@ -147,7 +186,11 @@ void newstuff::on_fugl0Button_clicked(){
     ui->exerciseButton_2->setText("Exercises not set");
     ui->exerciseButton_3->setText("Exercises not set");
     ui->exerciseButton_4->setText("Exercises not set");
-    ui->exerciseArea->setTitle("Exercise difficulty not set");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Not set");
   }
 }
 void newstuff::on_fugl1Button_clicked(){
@@ -159,11 +202,18 @@ void newstuff::on_fugl1Button_clicked(){
     ui->exerciseButton_2->setEnabled(true);
     ui->exerciseButton_3->setEnabled(true);
     ui->exerciseButton_4->setEnabled(true);
-    ui->exerciseButton_1->setText("Exercise 1.1 Placeholder");
-    ui->exerciseButton_2->setText("Exercise 1.2 Placeholder");
-    ui->exerciseButton_3->setText("Exercise 1.3 Placeholder");
-    ui->exerciseButton_4->setText("Exercise 1.4 Placeholder");
-    ui->exerciseArea->setTitle("Exercise difficulty = 1 ");
+    ui->exerciseButton_1->setText(normal_exercise1);
+    ui->exerciseButton_2->setText(normal_exercise2);
+    ui->exerciseButton_3->setText(normal_exercise3);
+    ui->exerciseButton_4->setText(normal_exercise4);
+    ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Normal");
 
   }
   else {
@@ -175,7 +225,11 @@ void newstuff::on_fugl1Button_clicked(){
     ui->exerciseButton_2->setText("Exercises not set");
     ui->exerciseButton_3->setText("Exercises not set");
     ui->exerciseButton_4->setText("Exercises not set");
-    ui->exerciseArea->setTitle("Exercise difficulty not set");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Not set");
   }
 }
 void newstuff::on_fugl2Button_clicked(){
@@ -187,12 +241,18 @@ void newstuff::on_fugl2Button_clicked(){
     ui->exerciseButton_2->setEnabled(true);
     ui->exerciseButton_3->setEnabled(true);
     ui->exerciseButton_4->setEnabled(true);
-    ui->exerciseButton_1->setText("Exercise 2.1 Placeholder");
-    ui->exerciseButton_2->setText("Exercise 2.2 Placeholder");
-    ui->exerciseButton_3->setText("Exercise 2.3 Placeholder");
-    ui->exerciseButton_4->setText("Exercise 2.4 Placeholder");
-    ui->exerciseArea->setTitle("Exercise difficulty = 2");
-
+    ui->exerciseButton_1->setText(hard_exercise1);
+    ui->exerciseButton_2->setText(hard_exercise2);
+    ui->exerciseButton_3->setText(hard_exercise3);
+    ui->exerciseButton_4->setText(hard_exercise4);
+    ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Hard");
   }
   else {
     ui->exerciseButton_1->setEnabled(false);
@@ -203,47 +263,241 @@ void newstuff::on_fugl2Button_clicked(){
     ui->exerciseButton_2->setText("Exercises not set");
     ui->exerciseButton_3->setText("Exercises not set");
     ui->exerciseButton_4->setText("Exercises not set");
-    ui->exerciseArea->setTitle("Exercise difficulty not set");
+    ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_2->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_3->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->exerciseButton_4->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+    ui->statusLabel->setText("Difficulty \nExercise difficulty: Not set");
   }
+}
+
+void ExerciseSelect::on_exercise_select_button_1_clicked(){
+  Selection selec("Exercises Available");
+  accept();
+  selec.exec();
+}
+
+void ExerciseSelect::on_exercise_select_button_2_clicked(){
+  Selection selec("Exercises Available");
+  accept();
+  selec.exec();
+}
+
+void ExerciseSelect::on_exercise_select_button_3_clicked(){
+  Selection selec("Exercises Available");
+  accept();
+  selec.exec();
+}
+
+void ExerciseSelect::on_exercise_select_button_4_clicked(){
+  Selection selec("Exercises Available");
+  accept();
+  selec.exec();
+}
+
+void Selection::on_pnp_button_clicked(){
+  switch(current_stage) {
+    case 1 :
+      easy_exercise1 = "pnp stage 1";
+      easy_exercise2 = "pnp stage 1";
+      easy_exercise3 = "pnp stage 1";
+      easy_exercise4 = "pnp stage 1";
+      break;
+    case 2 :
+    normal_exercise1 = "pnp stage 2";
+    normal_exercise2 = "pnp stage 2";
+    normal_exercise3 = "pnp stage 2";
+    normal_exercise4 = "pnp stage 2";
+      break;
+    case 3 :
+    hard_exercise1 = "pnp stage 3";
+    hard_exercise2 = "pnp stage 3";
+    hard_exercise3 = "pnp stage 3";
+    hard_exercise4 = "pnp stage 3";
+      break;
+  }
+  accept();
+}
+void Selection::on_rng_button_clicked(){
+  switch(current_stage) {
+    case 1 :
+    easy_exercise1 = "rng stage 1";
+    easy_exercise2 = "rng stage 1";
+    easy_exercise3 = "rng stage 1";
+    easy_exercise4 = "rng stage 1";
+      break;
+    case 2 :
+    normal_exercise1 = "rng stage 2";
+    normal_exercise2 = "rng stage 2";
+    normal_exercise3 = "rng stage 2";
+    normal_exercise4 = "rng stage 2";
+      break;
+    case 3 :
+    hard_exercise1 = "rng stage 3";
+    hard_exercise2 = "rng stage 3";
+    hard_exercise3 = "rng stage 3";
+    hard_exercise4 = "rng stage 3";
+      break;
+  }
+  accept();
+}
+void Selection::on_ass_button_clicked(){
+  switch(current_stage) {
+    case 1 :
+    easy_exercise1 = "ass stage 1";
+    easy_exercise2 = "ass stage 1";
+    easy_exercise3 = "ass stage 1";
+    easy_exercise4 = "ass stage 1";
+      break;
+    case 2 :
+    normal_exercise1 = "ass stage 2";
+    normal_exercise2 = "ass stage 2";
+    normal_exercise3 = "ass stage 2";
+    normal_exercise4 = "ass stage 2";
+      break;
+    case 3 :
+    hard_exercise1 = "ass stage 3";
+    hard_exercise2 = "ass stage 3";
+    hard_exercise3 = "ass stage 3";
+    hard_exercise4 = "ass stage 3";
+      break;
+  }
+  accept();
+}
+void Selection::on_taunt_button_clicked(){
+  switch(current_stage) {
+    case 1 :
+    easy_exercise1 = "taunt stage 1";
+    easy_exercise2 = "taunt stage 1";
+    easy_exercise3 = "taunt stage 1";
+    easy_exercise4 = "taunt stage 1";
+      break;
+    case 2 :
+    normal_exercise1 = "taunt stage 2";
+    normal_exercise2 = "taunt stage 2";
+    normal_exercise3 = "taunt stage 2";
+    normal_exercise4 = "taunt stage 2";
+      break;
+    case 3 :
+    hard_exercise1 = "taunt stage 3";
+    hard_exercise2 = "taunt stage 3";
+    hard_exercise3 = "taunt stage 3";
+    hard_exercise4 = "taunt stage 3";
+      break;
+  }
+  accept();
+}
+void Selection::on_catch_button_clicked(){
+  switch(current_stage) {
+    case 1 :
+    easy_exercise1 = "catch stage 1";
+    easy_exercise2 = "catch stage 1";
+    easy_exercise3 = "catch stage 1";
+    easy_exercise4 = "catch stage 1";
+      break;
+    case 2 :
+    normal_exercise1 = "catch stage 2";
+    normal_exercise2 = "catch stage 2";
+    normal_exercise3 = "catch stage 2";
+    normal_exercise4 = "catch stage 2";
+      break;
+    case 3 :
+    hard_exercise1 = "catch stage 3";
+    hard_exercise2 = "catch stage 3";
+    hard_exercise3 = "catch stage 3";
+    hard_exercise4 = "catch stage 3";
+      break;
+  }
+  accept();
 }
 void CustomDialog::on_okButton_clicked(){
   accept();
 }
 
 void newstuff::on_exerciseButton_1_clicked(){
-  CustomDialog dialog(itemList);
+  CustomDialog dialog(itemList,"Select Repetitions");
   if (dialog.exec() == QDialog::Accepted){
+    cbox = dialog.box->currentText();
+    reps = cbox.toInt();
     prg->show();
     this->hide();
     thread->start();
   }
 }
 void newstuff::on_exerciseButton_2_clicked(){
-  CustomDialog dialog(itemList);
+  CustomDialog dialog(itemList,"Select Repetitions");
   if (dialog.exec() == QDialog::Accepted){
+    cbox = dialog.box->currentText();
+    reps = cbox.toInt();
     prg->show();
     this->hide();
     thread->start();
   }
 }
 void newstuff::on_exerciseButton_3_clicked(){
-  CustomDialog dialog(itemList);
+  CustomDialog dialog(itemList,"Select Repetitions");
   if (dialog.exec() == QDialog::Accepted){
+    cbox = dialog.box->currentText();
+    reps = cbox.toInt();
+    prg->show();
+    this->hide();
+    thread->start();
+  }
+}
+void newstuff::on_exerciseButton_4_clicked(){
+  CustomDialog dialog(itemList,"Select Repetitions");
+  if (dialog.exec() == QDialog::Accepted){
+    cbox = dialog.box->currentText();
+    reps = cbox.toInt();
     prg->show();
     this->hide();
     thread->start();
   }
 }
 
-void newstuff::on_exerciseButton_4_clicked(){
-  CustomDialog dialog(itemList);
-  if (dialog.exec() == QDialog::Accepted){
-    prg->show();
-    this->setVisible(false);
-    thread->start();
-  }
-}
-
 void newstuff::on_action_exit_triggered(){
   this->close();
+}
+
+void newstuff::on_action_exercises_triggered(){
+  CustomDialog dialog(stageList,"Select difficulty for exercises");
+  int stage;
+  if (dialog.exec() == QDialog::Accepted){
+    cbox = dialog.box->currentText();
+
+    if(cbox == "Easy"){
+      current_stage = 1;
+    }
+    else if(cbox == "Medium"){
+      current_stage = 2;
+    }
+    else if(cbox == "Hard"){
+      current_stage = 3;
+    }
+    ExerciseSelect exerselec("Select the exercise you want to edit");
+    exerselec.exec();
+  }
+  std::cout<<current_stage<<std::endl;
+  update(current_stage);
+}
+
+void newstuff::update(int stage){
+  if(stage == 1){
+    ui->exerciseButton_1->setText(easy_exercise1);
+    ui->exerciseButton_2->setText(easy_exercise2);
+    ui->exerciseButton_3->setText(easy_exercise3);
+    ui->exerciseButton_4->setText(easy_exercise4);
+  }
+  else if(stage == 2){
+    ui->exerciseButton_1->setText(normal_exercise1);
+    ui->exerciseButton_2->setText(normal_exercise2);
+    ui->exerciseButton_3->setText(normal_exercise3);
+    ui->exerciseButton_4->setText(normal_exercise4);
+  }
+  else if(stage == 3){
+    ui->exerciseButton_1->setText(hard_exercise1);
+    ui->exerciseButton_2->setText(hard_exercise2);
+    ui->exerciseButton_3->setText(hard_exercise3);
+    ui->exerciseButton_4->setText(hard_exercise4);
+  }
 }
