@@ -9,7 +9,7 @@ To be able to use this package the following needs to installed before:
 * ROS Kinetic or later
 * librealsense
 * Opencv 2.4 or higher
-* Qt 5.0
+* Qt 4.0
 
 Basic Information
 ------------
@@ -26,4 +26,4 @@ Then build it with the command:
 ```
 catkin_make
 ```
-TODO: Add more commands
+TODO: Add more commands and names?
