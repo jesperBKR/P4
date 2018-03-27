@@ -1,8 +1,8 @@
 Graphical User Interface (GUI) Setup 
 ====================================
-Please go through the following steps in order to run the GUI Package.
 Setup
 -------------
+Please go through the following steps in order to run the GUI Package.
 First clone the repository into the src folder of your Catkin Workspace
 ```
 git clone https://github.com/raggyftw/P4.git
