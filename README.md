@@ -22,8 +22,8 @@ First clone the repository:
 git clone https://github.com/raggyftw/P4.git
 ```
 
-Then build it with the command:
+To build the GUI:
 ```
-catkin_make
+catkin_make --pkg testing
 ```
 TODO: Add more commands and names?
