@@ -69,9 +69,11 @@ public Q_SLOTS:
   void on_stopButton_clicked();
   void updateUI();
   void timer_tick();
+  //void setup();
 private:
   Ui::progress *ui;
   void closeEvent(QCloseEvent *event);
+  void showEvent(QShowEvent *event);
   int secs,mins,fake_time;
   std::string sec,min,secmin;
 };

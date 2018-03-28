@@ -37,12 +37,10 @@ progress::progress(int argc, char** argv, QWidget *parent) :
   connect(sub, SIGNAL(finished()), sub, SLOT(deleteLater()));
   connect(sthread, SIGNAL(finished()), sthread, SLOT(deleteLater()));
   connect(sub, SIGNAL(update()), this, SLOT(updateUI()));
-  mins = 0;
-  secs = 0;
   timer = new QTimer(this);
   etimer = new QElapsedTimer;
-  etimer->start();
-  timer->start(1000);
+  mins = 0;
+  secs = 0;
   connect(timer, SIGNAL(timeout()),this,SLOT(timer_tick()));
 
 }
@@ -111,12 +109,19 @@ void progress::closeEvent(QCloseEvent *event){
   Q_EMIT windowClosed();
   event->accept();
 }
+
+void progress::showEvent(QShowEvent *event){
+  sthread->start();
+
+  etimer->start();
+  timer->start(1000);
+}
+
 void progress::on_stopButton_clicked(){
   this->close();
 }
 
 void progress::on_pauseButton_clicked(){
-  sthread->start();
 
 }
 void progress::updateUI(){
