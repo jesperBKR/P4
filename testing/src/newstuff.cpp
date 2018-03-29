@@ -11,7 +11,8 @@
 #include <QMessageBox>
 #include <QVariant>
 #include <QPalette>
-int reps;
+using namespace std;
+int reps,temp_reps;
 int current_stage,current_exercise;
 bool pub_gui = true;
 QString easy_exercise1,easy_exercise2,easy_exercise3,easy_exercise4;
@@ -49,15 +50,12 @@ newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   ui->exerciseButton_4->setEnabled(false);
   ui->statusLabel->setStyleSheet("font-weight: bold");
   ui->statusLabel->setText("Difficulty");
-  ui->menuBar->setStyleSheet("QMenuBar::item{background-color:white;}");
-  //ui->labelLayout->setStyleSheet("border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
+  ui->menuBar->setStyleSheet("QMenuBar::item{padding: 1px 5px;background-color:white;border-style: solid;border-color: grey;border-width: 3px;} QMenuBar::item::selected{background-color: rgba(153,204,255,255);border-style: solid;border-color: grey;border-width: 3px;}");
+  ui->menuFile->setStyleSheet("background-color: rgba(153,204,255,255);border-style: solid;border-color: grey;border-width: 3px;");
+  ui->menuExercises->setStyleSheet("background-color: rgba(153,204,255,255);border-style: solid;border-color: grey;border-width: 3px;");
   ui->exerciseArea->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
   ui->status_Area->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
-  //ui->menuFile->setStyleSheet("menuBar::item {background-color: transparent;");
 
-  //ui->menuFile->setStyleSheet("background-color: red;");
-  //ui->menuBar->setStyleSheet("background-color: white);");
-  //ui->menuFile->setStyleSheet("background-color: white);");
   reps =0;
   prg = new progress(argc,argv);
   QRect position = frameGeometry();
@@ -70,6 +68,8 @@ newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   worker->moveToThread(thread);
   //connect(worker, SIGNAL(error(QString)), worker, SLOT(errorString(QString)));
   connect(prg, SIGNAL(windowClosed()),this, SLOT(unhide()));
+  connect(prg, SIGNAL(pause()),this,SLOT(pausePub()));
+  connect(prg, SIGNAL(play()),this,SLOT(playPub()));
   connect(thread, SIGNAL(started()), worker, SLOT(process()));
   connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
   connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
@@ -124,6 +124,7 @@ void Worker::run() {
   //Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 void newstuff::unhide(){
+  cout<<"test"<<endl;
   this->show();
   reps = 0;
   switch (current_stage) {
@@ -172,6 +173,14 @@ void Worker::process(){
   Q_EMIT finished();
 }
 
+void newstuff::pausePub(){
+    temp_reps = reps;
+    reps = 0;
+}
+
+void newstuff::playPub(){
+  reps = temp_reps;
+}
 
 void newstuff::on_fugl0Button_clicked(){
   ui->fugl0Button->setDown(true);

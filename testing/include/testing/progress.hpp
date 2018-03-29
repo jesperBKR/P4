@@ -64,6 +64,8 @@ public:
    QElapsedTimer* etimer;
 Q_SIGNALS:
   void windowClosed();
+  void pause();
+  void play();
 public Q_SLOTS:
   void on_pauseButton_clicked();
   void on_stopButton_clicked();

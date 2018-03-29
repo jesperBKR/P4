@@ -2,8 +2,10 @@
 #include "../include/testing/newstuff.hpp"
 #include "ui_progress.h"
 
+using namespace std;
 QString value;
 int rep_count;
+int prev_sec, prev_min;
 progress::progress(int argc, char** argv, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::progress),
@@ -24,6 +26,7 @@ progress::progress(int argc, char** argv, QWidget *parent) :
   ui->lcdNumber->setStyleSheet("border: 2px solid grey;border-radius: 5px;");
   ui->lcdNumber->setNumDigits(5);
   ui->lcdNumber->display(0);
+  ui->menuBar->setStyleSheet("QMenuBar::item{background-color:white;}");
 
   QRect position = frameGeometry();
   position.moveCenter(QDesktopWidget().availableGeometry().center());
@@ -84,26 +87,28 @@ void subThread::subCallback(const std_msgs::Int16 msg){
 }
 
 void progress::timer_tick(){
-  secs = etimer->elapsed()/ 50;
-  mins = (secs/60)%60;
-  secs = secs % 60;
-  std::stringstream ss;
+  if (etimer->isValid()){
+    secs = (etimer->elapsed()/ 1000)+prev_sec;
+    mins = ((secs/60)%60)+prev_min;
+    secs = secs % 60;
+    std::stringstream ss;
 
-  if(mins < 10 && secs < 10){
-    ss<<"0"<< mins <<":" <<"0"<<secs;
+    if(mins < 10 && secs < 10){
+      ss<<"0"<< mins <<":" <<"0"<<secs;
+    }
+    else if(mins < 10){
+      ss<<"0"<< mins <<":" <<secs;
+    }
+    else if(secs < 10){
+      ss<< mins <<":" <<"0"<<secs;
+    }
+    else {
+      ss<< mins <<":"<<secs;
+    }
+    secmin = ss.str();
+    QString qstr =QString::fromStdString(secmin);
+    ui->lcdNumber->display(qstr);
   }
-  else if(mins < 10){
-    ss<<"0"<< mins <<":" <<secs;
-  }
-  else if(secs < 10){
-    ss<< mins <<":" <<"0"<<secs;
-  }
-  else {
-    ss<< mins <<":"<<secs;
-  }
-  secmin = ss.str();
-  QString qstr =QString::fromStdString(secmin);
-  ui->lcdNumber->display(qstr);
 }
 void progress::closeEvent(QCloseEvent *event){
   Q_EMIT windowClosed();
@@ -118,18 +123,41 @@ void progress::showEvent(QShowEvent *event){
 }
 
 void progress::on_stopButton_clicked(){
+  etimer->invalidate();
+  timer->stop();
   this->close();
 }
 
 void progress::on_pauseButton_clicked(){
+  if (ui->pauseButton->text() == "Pause"){
+    Q_EMIT pause();
+    ui->pauseButton->setText("Play");
+    prev_sec = prev_sec + etimer->elapsed() /1000;
+    prev_min = prev_min + (prev_sec/60)%60;
+    etimer->invalidate();
+    timer->stop();
+  }
+  else {
+    Q_EMIT play();
+    ui->pauseButton->setText("Pause");
+    etimer->start();
+    timer->start(1000);
+  }
 
 }
 void progress::updateUI(){
-  secs = etimer->elapsed()/ 1000;
-  mins = (secs/60)%60;
+  secs = (etimer->elapsed()/ 1000)+prev_sec;
+  mins = ((secs/60)%60)+prev_min;
   int display_prog;
   int reps_done = mins;
-  display_prog = (100/rep_count)*reps_done;
-  ui->progressBar->setValue(display_prog);
-  ui->descriptionText->setText(value);
+  if (rep_count != 0){
+    display_prog = (100/rep_count)*reps_done;
+  }
+  if (ui->pauseButton->text() == "Pause"){
+    ui->progressBar->setValue(display_prog);
+    ui->descriptionText->setText(value);
+  }
+  else {
+    ui->descriptionText->setText(value);
+}
 }
