@@ -3,6 +3,9 @@ project(realsense_zr300)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORTIFY_SOURCE=2 ")  #TODO: Check what it is
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fstack-protector-strong")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fPIE -fPIC")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -154,13 +157,18 @@ add_executable(${PROJECT_NAME}_node src/realsense_zr300_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
+        ${catkin_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}_node
                                       realsense
                                       realsense_image
                                       realsense_projection
                                       opencv_imgproc
                                       opencv_core
 				                              opencv_highgui
-                                      opencv_features2d)
+                                      opencv_features2d
+)
 
 
 #############

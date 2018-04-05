@@ -24,7 +24,7 @@ void get_single_coordinate_on_color_image(std::shared_ptr<image_interface> color
 
 // void get_color_coordinate_with_depth_value(std::shared_ptr<image_interface> color_image, std::shared_ptr<image_interface> depth_image, vector<point3dF32> &color_coordinate_with_depth);
 
-int main (int argc, char ** argv)
+int main (int argc, char **argv)
 {
     ros::init(argc, argv, "realsense_node");
     ros::NodeHandle nh;
@@ -58,7 +58,7 @@ int main (int argc, char ** argv)
 
     device->start();
 
-    while ( ros::ok() || device.is_streaming() )
+    while ( ros::ok() || device->is_streaming() )
     {
       std_msgs::String msg;
       std::stringstream ss;
