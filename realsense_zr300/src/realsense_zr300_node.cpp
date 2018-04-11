@@ -32,6 +32,32 @@ int main (int argc, char **argv)
     ros::Publisher chatter_pub = nh.advertise<std_msgs::String>("realsense_node", 1);
     ros::Rate loop_rate(30);
 
+    // Create a window for our test Control
+    cv::namedWindow("HSV - Control", 0);
+
+    int lowHue = 0;
+    int highHue = 179;
+
+    int lowSat = 0;
+    int highSat = 255;
+
+    int lowVal = 0;
+    int highVal = 255;
+
+    //Create trackbars in "HSV - Control" window
+    //Hue (0 - 179)
+    cvCreateTrackbar("Low Hue", "HSV - Control", &lowHue, 179);
+    cvCreateTrackbar("High Hue", "HSV - Control", &highHue, 179);
+
+    // Saturation (0 - 255)
+    cvCreateTrackbar("Low Saturation", "HSV - Control", &lowSat, 255);
+    cvCreateTrackbar("High Saturation", "HSV - Control", &highSat, 255);
+
+    // Value (0 - 255)
+    cvCreateTrackbar("Low Value", "HSV - Control", &lowVal, 255);
+    cvCreateTrackbar("High Value", "HSV - Control", &highVal, 255);
+
+
     int count = 0;
     rs::context context;
     if(context.get_device_count() == 0)
@@ -116,62 +142,124 @@ int main (int argc, char **argv)
       depth8.convertTo( depth8, CV_8UC1, 255.0/1000 );
       // cv::Mat frame(color_intrin.height, color_intrin.width, CV_8UC3, (uchar *)device->get_frame_data( rs::frame ));
 
-      cv::cvtColor( _color_image, _color_image, cv::COLOR_BGR2RGB);
+      cv::Mat hsvImage;
+      // Change the incoming frame to RGB
+      // cv::cvtColor( _color_image, _color_image, cv::COLOR_BGR2RGB);
+      cv::cvtColor( _color_image, hsvImage, cv::COLOR_BGR2HSV);
 
-      // Map Color To Depth
+      cv::Mat thresholdImage;
+
+      cv::inRange(hsvImage, cv::Scalar(lowHue, lowSat, lowVal), cv::Scalar(highHue, highSat, highVal), thresholdImage);
+
+      // Create a vector to hold our color coordinates
       vector<pointF32> color_coordinates;
 
       // get_single_coordinate_on_color_image(color_image, color_coordinates);
 
-      cv::Mat binaryImage(color_intrin.height, color_intrin.width, CV_8UC1);
-      for(int x = 0; x < _color_image.cols; x++){
-        for(int y = 0; y < _color_image.rows; y++){
-          if(( _color_image.at<cv::Vec3b>(y,x)[0] < 60
-            && _color_image.at<cv::Vec3b>(y,x)[1] > 80
-            && _color_image.at<cv::Vec3b>(y,x)[2] < 70 ) ||
-             ( _color_image.at<cv::Vec3b>(y,x)[0] < 20
-            && _color_image.at<cv::Vec3b>(y,x)[1] > 30
-            && _color_image.at<cv::Vec3b>(y,x)[2] < 20 ))
-          {
-            binaryImage.at<uchar>(y, x) = 255;
-          } else {
-            binaryImage.at<uchar>(y, x) = 0;
-          }
-        }
-      }
-      if(!binaryImage.empty())
+      // Find the
+      // cv::Mat binaryImage(color_intrin.height, color_intrin.width, CV_8UC1);
+      // for(int x = 0; x < _color_image.cols; x++){
+      //   for(int y = 0; y < _color_image.rows; y++){
+      //     if(( _color_image.at<cv::Vec3b>(y,x)[0] < 60
+      //       && _color_image.at<cv::Vec3b>(y,x)[1] > 80
+      //       && _color_image.at<cv::Vec3b>(y,x)[2] < 70 ) ||
+      //        ( _color_image.at<cv::Vec3b>(y,x)[0] < 20
+      //       && _color_image.at<cv::Vec3b>(y,x)[1] > 30
+      //       && _color_image.at<cv::Vec3b>(y,x)[2] < 20 ))
+      //     {
+      //       binaryImage.at<uchar>(y, x) = 255;
+      //     } else {
+      //       binaryImage.at<uchar>(y, x) = 0;
+      //     }
+      //   }
+      // }
+      // if(!binaryImage.empty())
+      // {
+      //   cv::Mat element = cv::getStructuringElement( cv::MORPH_RECT , cv::Size(9, 9), cv::Point(-1, -1) );
+      //
+      //   cv::morphologyEx(binaryImage, binaryImage, cv::MORPH_OPEN, element, cv::Point(-1, -1));
+      //   // cv::morphologyEx(binaryImage, binaryImage, cv::MORPH_CLOSE, element, cv::Point(-1, -1));
+      //
+      //   std::vector<std::vector<cv::Point> > contours;
+      //   std::vector<cv::Vec4i> hierarchy;
+      //
+      //   cv::findContours(binaryImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+      //
+      //   std::vector<cv::RotatedRect> minRect( contours.size() );
+      //
+      //   for( unsigned int i = 0; i < contours.size(); i++)
+      //   {
+      //     minRect[i] = cv::minAreaRect( cv::Mat(contours[i]) );
+      //   }
+      //   if(!minRect.empty())
+      //   {
+      //     cv::Scalar rotatedColor( 255, 0, 0);
+      //     for (unsigned int i = 0; i <= contours.size(); i++)
+      //     {
+      //       cv::Point2f rect_points[4]; minRect[i].points( rect_points );
+      //       for( int j = 0; j < 4; j++ )
+      //       cv::line( binaryImage, rect_points[j], rect_points[(j+1)%4], rotatedColor, 1, 8);
+      //
+      //       pointF32 coordinate;
+      //       coordinate.x = minRect[i].center.x;
+      //       coordinate.y = minRect[i].center.y;
+      //       color_coordinates.push_back(coordinate);
+      //
+      //     }
+      //   }
+      // }
+
+      if(!thresholdImage.empty())
       {
         cv::Mat element = cv::getStructuringElement( cv::MORPH_RECT , cv::Size(9, 9), cv::Point(-1, -1) );
 
-        cv::morphologyEx(binaryImage, binaryImage, cv::MORPH_OPEN, element, cv::Point(-1, -1));
-        // cv::morphologyEx(binaryImage, binaryImage, cv::MORPH_CLOSE, element, cv::Point(-1, -1));
+        // Morphological opening (remove small objects)
+        cv::morphologyEx(thresholdImage, thresholdImage, cv::MORPH_OPEN, element, cv::Point(-1, -1));
+
+        // Morphological closing (fill small hloes)
+        cv::morphologyEx(thresholdImage, thresholdImage, cv::MORPH_CLOSE, element, cv::Point(-1, -1));
 
         std::vector<std::vector<cv::Point> > contours;
         std::vector<cv::Vec4i> hierarchy;
 
-        cv::findContours(binaryImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        // Maybe add edge here and use that for contours
+
+        cv::findContours(thresholdImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
         std::vector<cv::RotatedRect> minRect( contours.size() );
 
+        // for( unsigned int i = 0; i < contours.size(); i++)
+        // {
+        //   minRect[i] = cv::minAreaRect( cv::Mat(contours[i]) );
+        // }
+        int largest_area = 0;
+        unsigned int largest_contour_index = 0;
         for( unsigned int i = 0; i < contours.size(); i++)
         {
-          minRect[i] = cv::minAreaRect( cv::Mat(contours[i]) );
+          double a = cv::contourArea( contours[i], false);
+          if(a>largest_area)
+          {
+            largest_area = a;
+            largest_contour_index = i;
+            minRect[i] = cv::minAreaRect( cv::Mat(contours[i]) );
+          }
         }
+
         if(!minRect.empty())
         {
           cv::Scalar rotatedColor( 255, 0, 0);
-          for (unsigned int i = 0; i <= contours.size(); i++)
-          {
-            cv::Point2f rect_points[4]; minRect[i].points( rect_points );
+          // for (unsigned int i = 0; i <= contours.size(); i++)
+          // {
+            cv::Point2f rect_points[4]; minRect[largest_contour_index].points( rect_points );
             for( int j = 0; j < 4; j++ )
-            cv::line( binaryImage, rect_points[j], rect_points[(j+1)%4], rotatedColor, 1, 8);
+            cv::line( thresholdImage, rect_points[j], rect_points[(j+1)%4], rotatedColor, 1, 8);
 
             pointF32 coordinate;
-            coordinate.x = minRect[i].center.x;
-            coordinate.y = minRect[i].center.y;
+            coordinate.x = minRect[largest_contour_index].center.x;
+            coordinate.y = minRect[largest_contour_index].center.y;
             color_coordinates.push_back(coordinate);
 
-          }
+          // }
         }
       }
 
@@ -180,9 +268,10 @@ int main (int argc, char **argv)
 
       cv::imshow(color_win_name, _color_image);
       cv::imshow(depth_win_name, depth8);
-      cv::imshow("Binary: ",binaryImage);
+      // cv::imshow("Binary: ",binaryImage);
+      cv::imshow("Thresholded Image", thresholdImage);
 
-      if(!color_coordinates.empty())
+      if(!color_coordinates.empty() && 0 )
       {
         vector<pointF32> mapped_dDepth_coordinates(color_coordinates.size());
         if(projection_->map_color_to_depth(depth_image.get(), static_cast<int32_t>(color_coordinates.size()), color_coordinates.data(), mapped_dDepth_coordinates.data()) < status_no_error)
