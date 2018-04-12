@@ -4,6 +4,7 @@
 
 #include "ros/ros.h"
 #include <std_msgs/String.h>
+#include <geometry_msgs/Point32.h>
 
 #include <librealsense/rs.hpp>
 
@@ -30,33 +31,42 @@ int main (int argc, char **argv)
     ros::NodeHandle nh;
 
     ros::Publisher chatter_pub = nh.advertise<std_msgs::String>("realsense_node", 1);
+    ros::Publisher position_pub = nh.advertise<geometry_msgs::Point32>("object_pos", 1);
     ros::Rate loop_rate(30);
 
     // Create a window for our test Control
-    cv::namedWindow("HSV - Control", 0);
+    const char* control_window = "HSV - Control";
+    cv::namedWindow(control_window, 0);
 
-    int lowHue = 0;
-    int highHue = 179;
+    int lowHue = 34;
+    int highHue = 63;
 
-    int lowSat = 0;
+    int lowSat = 202;
     int highSat = 255;
 
-    int lowVal = 0;
+    int lowVal = 137;
     int highVal = 255;
+
+    const int maxThreshold = 100;
+    int cannyThreshold  = 0;
+    // Canny thresholds input with a ratio 1:3
+    int ratio = 3;
 
     //Create trackbars in "HSV - Control" window
     //Hue (0 - 179)
-    cvCreateTrackbar("Low Hue", "HSV - Control", &lowHue, 179);
-    cvCreateTrackbar("High Hue", "HSV - Control", &highHue, 179);
+    cvCreateTrackbar("Low Hue", control_window, &lowHue, 179);
+    cvCreateTrackbar("High Hue", control_window, &highHue, 179);
 
     // Saturation (0 - 255)
-    cvCreateTrackbar("Low Saturation", "HSV - Control", &lowSat, 255);
-    cvCreateTrackbar("High Saturation", "HSV - Control", &highSat, 255);
+    cvCreateTrackbar("Low Saturation", control_window, &lowSat, 255);
+    cvCreateTrackbar("High Saturation", control_window, &highSat, 255);
 
     // Value (0 - 255)
-    cvCreateTrackbar("Low Value", "HSV - Control", &lowVal, 255);
-    cvCreateTrackbar("High Value", "HSV - Control", &highVal, 255);
+    cvCreateTrackbar("Low Value", control_window, &lowVal, 255);
+    cvCreateTrackbar("High Value", control_window, &highVal, 255);
 
+    // Canny low threshold (0 - 100)
+    cvCreateTrackbar("Canny low threshold", control_window, &cannyThreshold, maxThreshold);
 
     int count = 0;
     rs::context context;
@@ -86,13 +96,13 @@ int main (int argc, char **argv)
 
     while ( ros::ok() || device->is_streaming() )
     {
-      std_msgs::String msg;
-      std::stringstream ss;
-      ss << "Hello world " << count;
-      msg.data = ss.str();
-      chatter_pub.publish(msg);
-      ros::spinOnce();
-      count++;
+      // std_msgs::String msg;
+      // std::stringstream ss;
+      // ss << "Hello world " << count;
+      // msg.data = ss.str();
+      // chatter_pub.publish(msg);
+      // ros::spinOnce();
+      // count++;
 
       intrinsics color_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::color));
       intrinsics depth_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::depth));
@@ -208,6 +218,7 @@ int main (int argc, char **argv)
       //     }
       //   }
       // }
+      cv::Mat edges;
 
       if(!thresholdImage.empty())
       {
@@ -222,9 +233,11 @@ int main (int argc, char **argv)
         std::vector<std::vector<cv::Point> > contours;
         std::vector<cv::Vec4i> hierarchy;
 
-        // Maybe add edge here and use that for contours
 
-        cv::findContours(thresholdImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        // Maybe add edge here and use that for contours
+        cv::Canny(thresholdImage, edges, cannyThreshold, cannyThreshold*ratio, 3);
+
+        cv::findContours(edges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
         std::vector<cv::RotatedRect> minRect( contours.size() );
 
@@ -252,7 +265,7 @@ int main (int argc, char **argv)
           // {
             cv::Point2f rect_points[4]; minRect[largest_contour_index].points( rect_points );
             for( int j = 0; j < 4; j++ )
-            cv::line( thresholdImage, rect_points[j], rect_points[(j+1)%4], rotatedColor, 1, 8);
+            cv::line( edges, rect_points[j], rect_points[(j+1)%4], rotatedColor, 1, 8);
 
             pointF32 coordinate;
             coordinate.x = minRect[largest_contour_index].center.x;
@@ -269,9 +282,9 @@ int main (int argc, char **argv)
       cv::imshow(color_win_name, _color_image);
       cv::imshow(depth_win_name, depth8);
       // cv::imshow("Binary: ",binaryImage);
-      cv::imshow("Thresholded Image", thresholdImage);
+      cv::imshow("Thresholded Image", edges);
 
-      if(!color_coordinates.empty() && 0 )
+      if(!color_coordinates.empty())
       {
         vector<pointF32> mapped_dDepth_coordinates(color_coordinates.size());
         if(projection_->map_color_to_depth(depth_image.get(), static_cast<int32_t>(color_coordinates.size()), color_coordinates.data(), mapped_dDepth_coordinates.data()) < status_no_error)
@@ -279,7 +292,7 @@ int main (int argc, char **argv)
           cerr<<"failed to map the color coordinates to depth" << endl;
           return -1;
         }
-
+        geometry_msgs::Point32 position_msg;
         for(size_t i = 0; i < color_coordinates.size(); i++)
         {
           if(mapped_dDepth_coordinates[i].x < 0 || mapped_dDepth_coordinates[i].y < 0){
@@ -294,10 +307,15 @@ int main (int argc, char **argv)
               return -1;
             }
             // World coordinates from Verticies in mm.
-            cout << "Vert. Coordinate X: " << vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].x << endl;
-            cout << "Vert. Coordinate Y: " << vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].y << endl;
-            cout << "Vert. Coordinate Z: " << vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].z << endl;
+            position_msg.x = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].x;
+            position_msg.y = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].y;
+            position_msg.z = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].z;
 
+            cout << "Vert. Coordinate X: " << position_msg.x << endl;
+            cout << "Vert. Coordinate Y: " << position_msg.y << endl;
+            cout << "Vert. Coordinate Z: " << position_msg.z << endl;
+
+            position_pub.publish(position_msg);
           }
         }
       }
@@ -308,6 +326,7 @@ int main (int argc, char **argv)
         if(!device->is_streaming())
           break;
       }
+      ros::spinOnce();
     } // end of for
 
     return 0;
