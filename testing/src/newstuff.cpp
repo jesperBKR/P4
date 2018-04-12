@@ -7,6 +7,7 @@
 #include <string>
 #include <std_msgs/String.h>
 #include <std_msgs/Int16.h>
+#include "../msg/Setup.h"
 #include <sstream>
 #include <QMessageBox>
 #include <QVariant>
@@ -92,7 +93,7 @@ init_argv(argv)
 ros_ready = false;
 ros::init(init_argc,init_argv,"testing");
 ros::NodeHandle n;
-chatter_publisher = n.advertise<std_msgs::Int16>("This_topic", 1000);
+chatter_publisher = n.advertise<testing::Setup>("This_topic", 1000);
 }
 Worker::~Worker(){
 
@@ -106,7 +107,7 @@ bool Worker::init(){
   ros::start(); // explicitly needed since our nodehandle is going out of scope.
   ros::NodeHandle n;
   // Add your ros communications here.
-  chatter_publisher = n.advertise<std_msgs::Int16>("This_topic", 1000);
+  chatter_publisher = n.advertise<testing::Setup>("This_topic", 1000);
   return true;
 }
 
@@ -114,9 +115,11 @@ void Worker::run() {
 
 	ros::Rate loop_rate(1);
 	while (ros::ok()) {
-    std_msgs::Int16 dat;
-    dat.data = reps;
-		chatter_publisher.publish(dat);
+    testing::Setup data;
+    data.reps = reps;
+    data.diff = 0;
+    data.type = 0;
+		chatter_publisher.publish(data);
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
