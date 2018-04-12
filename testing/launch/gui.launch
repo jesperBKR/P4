@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find kinova_bringup)/launch/kinova_robot.launch"/>
+  <node name="testing" pkg="testing" type="testing" output="screen" />
+  <node name="fingers_action_client" pkg="kinova_demo" type="fingers_action_client.py" />
+</launch>
