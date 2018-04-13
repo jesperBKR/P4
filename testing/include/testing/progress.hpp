@@ -19,6 +19,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <sstream>
+#include "/home/oliver/my_ws/src/testing/msg/Setup.h"
+
 
 class subThread : public QObject {
   Q_OBJECT
@@ -32,7 +34,7 @@ public:
     bool ros_ready;
     std::string name;
     QString test;
-    void subCallback(const std_msgs::Int16 msg);
+    void subCallback(const testing::Setup msg);
 
 public Q_SLOTS:
   void process();
@@ -64,14 +66,18 @@ public:
    QElapsedTimer* etimer;
 Q_SIGNALS:
   void windowClosed();
+  void pause();
+  void play();
 public Q_SLOTS:
   void on_pauseButton_clicked();
   void on_stopButton_clicked();
   void updateUI();
   void timer_tick();
+  //void setup();
 private:
   Ui::progress *ui;
   void closeEvent(QCloseEvent *event);
+  void showEvent(QShowEvent *event);
   int secs,mins,fake_time;
   std::string sec,min,secmin;
 };
