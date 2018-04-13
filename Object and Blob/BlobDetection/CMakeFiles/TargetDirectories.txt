@@ -1,0 +1,3 @@
+/home/jesper/P4/Object and Blob/BlobDetection/CMakeFiles/edit_cache.dir
+/home/jesper/P4/Object and Blob/BlobDetection/CMakeFiles/rebuild_cache.dir
+/home/jesper/P4/Object and Blob/BlobDetection/CMakeFiles/BlobAnalysis.dir
