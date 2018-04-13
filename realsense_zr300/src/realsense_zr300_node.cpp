@@ -1,6 +1,8 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <Eigen/Dense>
+
 
 #include "ros/ros.h"
 #include <std_msgs/String.h>
@@ -20,6 +22,8 @@
 using namespace std;
 using namespace rs::core;
 using namespace rs::utils;
+
+#define M_PI 3.14159265358979323846
 
 void get_single_coordinate_on_color_image(std::shared_ptr<image_interface> color_image, vector<pointF32> &color_coordinates);
 
@@ -69,6 +73,7 @@ int main (int argc, char **argv)
     cvCreateTrackbar("Canny low threshold", control_window, &cannyThreshold, maxThreshold);
 
     int count = 0;
+    rs_error *rs_error_ = NULL;
     rs::context context;
     if(context.get_device_count() == 0)
     {
@@ -77,7 +82,7 @@ int main (int argc, char **argv)
     }
 
     rs::device* device = context.get_device(0);
-
+    rs_device* rs_device;
     const cv::String color_win_name = "Color Image";
     const cv::String depth_win_name = "Depth Image";
 
@@ -107,6 +112,8 @@ int main (int argc, char **argv)
       intrinsics color_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::color));
       intrinsics depth_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::depth));
       extrinsics extrin = convert_extrinsics(device->get_extrinsics(rs::stream::depth, rs::stream::color));
+      rs_extrinsics depth2color_extrinsic;
+      rs_get_device_extrinsics(rs_device, RS_STREAM_COLOR, RS_STREAM_DEPTH, &depth2color_extrinsic, &rs_error_);
 
       auto projection_ = rs::utils::get_unique_ptr_with_releaser(projection_interface::create_instance(&color_intrin, &depth_intrin, &extrin));
 
@@ -292,7 +299,7 @@ int main (int argc, char **argv)
           cerr<<"failed to map the color coordinates to depth" << endl;
           return -1;
         }
-        geometry_msgs::Point32 position_msg;
+        // geometry_msgs::Point32 position_msg;
         for(size_t i = 0; i < color_coordinates.size(); i++)
         {
           if(mapped_dDepth_coordinates[i].x < 0 || mapped_dDepth_coordinates[i].y < 0){
@@ -301,21 +308,80 @@ int main (int argc, char **argv)
           {
             auto depth_image_info = depth_image->query_info();
             vector<point3dF32> vertices(depth_image_info.width * depth_image_info.height);
+            point3dF32 translate_object;
             if(projection_->query_vertices(depth_image.get(), vertices.data()) < status_no_error)
             {
               cerr<<"failed to query vertices" << endl;
               return -1;
             }
-            // World coordinates from Verticies in mm.
-            position_msg.x = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].x;
-            position_msg.y = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].y;
-            position_msg.z = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].z;
+            // World coordinates from Verticies in mm from depth frame.
+            translate_object.x = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].x;
+            translate_object.y = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].y;
+            translate_object.z = vertices[static_cast<int32_t>(mapped_dDepth_coordinates[i].y) * depth_image_info.width + static_cast<int32_t>(mapped_dDepth_coordinates[i].x)].z;
 
-            cout << "Vert. Coordinate X: " << position_msg.x << endl;
-            cout << "Vert. Coordinate Y: " << position_msg.y << endl;
-            cout << "Vert. Coordinate Z: " << position_msg.z << endl;
+            cout << "Vert. Coordinate X: " << translate_object.x << endl;
+            cout << "Vert. Coordinate Y: " << translate_object.y << endl;
+            cout << "Vert. Coordinate Z: " << translate_object.z << endl;
 
-            position_pub.publish(position_msg);
+
+
+            // Robot to camera Transform, rotaion of Y, Z, and the translation
+            Eigen::Matrix4f tr_robot_camera, rot_robot2camera_y, rot_robot2camera_z, transl_robot_camera;
+
+            // Camera to object, we only need the translation in a transformation matrix
+            Eigen::Matrix4f tr_camera_object;
+
+            // Robot to object Transformation matrix
+            Eigen::Matrix4f tr_robot_object;
+
+            // Point to store the transform from the robot to the camera
+            point3dF32 translate_camera;
+            translate_camera.x = 0.1;
+            translate_camera.y = 0.1;
+            translate_camera.z = 0.1;
+
+
+            // Transform from depth to color frame
+            // ros::Time transform_ts_;
+            // geometry_msgs::TransformStamped b2d_msg;
+            // b2d_msg.header.stamp = transform_ts_; // time of tramsform
+            // b2d_msg.transform.translation.x =  depth2color_extrinsic.translation[2];
+            // b2d_msg.transform.translation.y =  depth2color_extrinsic.translation[0]; // it is plus because we move in that direction
+            // b2d_msg.transform.translation.z =  depth2color_extrinsic.translation[1];
+
+            // Get the translation and rotation from the robot to the camera into
+            // a transformation matrix
+            float theta = 90 * M_PI/180;
+            rot_robot2camera_y << cos(theta), 0, sin(theta),  0,
+                                      0,      1,     0,       0,
+                                  -sin(theta),0, cos(theta),  0,
+                                      0,      0,      0,      1;
+
+            rot_robot2camera_z << cos(theta),  sin(theta),  0,  0,
+                                  -sin(theta), cos(theta),  0,  0,
+                                        0,         0,       0,  0,
+                                        0,         0,       0,  1;
+
+            transl_robot_camera << 1, 0, 0, translate_camera.x,
+                                   0, 1, 0, translate_camera.y,
+                                   0, 0, 1, translate_camera.z,
+                                   0, 0, 0,         1;
+
+            tr_robot_camera = rot_robot2camera_y*rot_robot2camera_z*transl_robot_camera;
+
+            // Transformation matrix from the camera to the object
+            tr_camera_object << 1, 0, 0, translate_object.x/1000,
+                                0, 1, 0, translate_object.y/1000,
+                                0, 0, 1, translate_object.z/1000,
+                                0, 0, 0,      1;
+
+            tr_robot_object = tr_robot_camera*tr_camera_object;
+            geometry_msgs::Point32 translate_object_msg;
+            translate_object_msg.x = tr_robot_object(0,3);
+            translate_object_msg.y = tr_robot_object(1,3);
+            translate_object_msg.z = tr_robot_object(2,3);
+
+            position_pub.publish(translate_object_msg);
           }
         }
       }

@@ -24,6 +24,10 @@ find_package( OpenCV REQUIRED )
 
 find_package( librealsense REQUIRED )
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+find_package(catkin REQUIRED cmake_modules)
+find_package( Eigen3 REQUIRED )
+
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
@@ -110,10 +114,10 @@ find_package( librealsense REQUIRED )
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+#  INCLUDE_DIRS ...
   LIBRARIES realsense_zr300
   CATKIN_DEPENDS roscpp rospy std_msgs librealsense
-#  DEPENDS system_lib
+  DEPENDS Eigen3
 )
 
 ###########
@@ -130,6 +134,8 @@ include_directories(
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 include_directories( ${librealsense_INCLUDE_DIRS} )
+
+include_directories( ${EIGEN3_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -169,6 +175,7 @@ target_link_libraries(${PROJECT_NAME}_node
                                       opencv_core
 				                              opencv_highgui
                                       opencv_features2d
+
 )
 
 
