@@ -32,7 +32,7 @@ home_pos  = [0.212322592735,-0.256329715252,0.5066832304]
 home_ori  = [0.64524179697,0.319341748953,0.42331302166,0.549990773201]
 home_pose = [home_pos,home_ori]
 object_location = home_pos
-move = True
+move = False
 done = False
 
 
@@ -247,12 +247,41 @@ def jacoStatus():
     rep_done = done
     pub.publish(rep_done)
     rate.sleep()
+def objectCallback(location):
+    object_location[0] = location.location.x
+    object_location[1] = location.location.y
+    object_location[2] = location.location.z
+    move = location.move.data
+    jacoStatus()
+    if not(move):
+        print('Waiting')
+    else:
 
-def objectCallback(data):
-    object_location[0] = data.location.x
-    object_location[1] = data.location.y
-    object_location[2] = data.location.z
-    move = data.move.data
+        try:
+            done = False
+            workspace = [0.14, 0.787,-0.34,-0.74,0.05,0.7]
+            random_pos = random_coordinates(workspace)
+            position = object_location#[0.1539178662002, -0.661769986153, 0.131685048342]
+            orientation = [0.962,  0.267,  -0.000,  0.067]
+            print(random_coordinates(workspace))
+            success = cartesian_pose_client(position, orientation)
+            while not success:
+                print('Moving to goal')
+            success = cartesian_pose_client(random_pos,orientation)
+            while not success:
+                print('Moving to goal')
+            cartesian_pose_client(home_pose[0],home_pose[1])
+            done = True
+            print('Cartesian pose sent!')
+
+        except rospy.ROSInterruptException:
+            print "program interrupted before completion"
+
+    #if (move):
+    #    print("true")
+    #else:
+    #    print("false")
+
 if __name__ == '__main__':
 
     #args = argumentParser(None)
@@ -276,30 +305,6 @@ if __name__ == '__main__':
     #pose_mq, pose_mdeg, pose_mrad = unitParser(args.unit, args.pose_value, args.relative)
     while not rospy.is_shutdown():
         rospy.Subscriber("move_to", object_pos, objectCallback)
-        jacoStatus()
-        if not(move):
-            print('Waiting')
-        else:
-
-            try:
-                done = False
-                workspace = [0.14, 0.787,-0.34,-0.74,0.05,0.7]
-                random_pos = random_coordinates(workspace)
-                position = object_location#[0.1539178662002, -0.661769986153, 0.131685048342]
-                orientation = [0.962,  0.267,  -0.000,  0.067]
-                print(random_coordinates(workspace))
-                success = cartesian_pose_client(position, orientation)
-                while not success:
-                    print('Moving to goal')
-                success = cartesian_pose_client(random_pos,orientation)
-                while not success:
-                    print('Moving to goal')
-                cartesian_pose_client(home_pose[0],home_pose[1])
-                done = True
-                print('Cartesian pose sent!')
-
-            except rospy.ROSInterruptException:
-                print "program interrupted before completion"
 
 
     #rospy.spin()
