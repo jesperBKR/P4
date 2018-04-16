@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   start_pose.pose.orientation.x = 0.67;
   start_pose.pose.orientation.y = -0.21;
   start_pose.pose.orientation.z = 0.72;
-  start_pose.pose.orientation.w = -0.11);
+  start_pose.pose.orientation.w = -0.11;
 
   std::string pause;
   tf::Pose random_pose;
