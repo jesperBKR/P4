@@ -7,7 +7,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 setup_args = generate_distutils_setup(
     packages=['kinova_demo'],
     package_dir={'': 'nodes'},
-    requires=['std_msgs', 'rospy', 'kinova_msgs', 'kinova_driver', 'geometry_msgs']
+    requires=['std_msgs', 'rospy', 'kinova_msgs', 'kinova_driver', 'geometry_msgs','object_pos.msg']
 )
 
 setup(**setup_args)
