@@ -19,7 +19,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <sstream>
-#include "/home/oliver/my_ws/src/testing/msg/Setup.h"
+#include "/home/larsg/Documents/Workspaces/P4_ws/src/P4/testing/msg/Setup.h"
 
 
 class subThread : public QObject {
