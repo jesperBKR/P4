@@ -28,7 +28,9 @@ public:
     ros::Publisher feedback_pub = nh.advertise<std_msgs::Int32>("feedback", 1);
   }
   //Destructor
-  ~Handler();
+  ~Handler(){
+
+  }
 
   //Input values from GUI: reps, diff, type, and if running (run)
   void guiCallback(const rupee_msgs::Setup gui_msg){
@@ -100,8 +102,8 @@ private:
 int main(int argc, char ** argv){
 
   init(argc, argv, "handler_node");
-  Rate loop_rate(10);
   Handler handler;
+  Rate loop_rate(10);
 
   while (true||ok()){
 
