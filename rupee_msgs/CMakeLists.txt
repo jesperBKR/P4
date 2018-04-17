@@ -52,6 +52,7 @@ find_package(catkin REQUIRED
  add_message_files(
    FILES
    Setup.msg	
+   object_pos.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -72,6 +73,7 @@ find_package(catkin REQUIRED
  generate_messages(
    DEPENDENCIES
    std_msgs  # Or other packages containing msgs
+   geometry_msgs
  )
 
 ################################################
