@@ -1,13 +1,13 @@
 //Include Libraries
-#include <ros/ros.h>
+#include<ros/ros.h>
 #include<iostream>
 
 //Include Messages
-#include <geometry_msgs/Point32.h>
+#include<geometry_msgs/Point32.h>
 #include<std_msgs/Int32.h>
 #include<std_msgs/Bool.h>
-#include "rupee_msgs/Setup.h"
-#include "rupee_msgs/object_pos.h"
+#include"rupee_msgs/Setup.h"
+#include"rupee_msgs/object_pos.h"
 
 using namespace ros;
 
@@ -17,6 +17,7 @@ Rate loop_rate(10);
 //Class
 class Handler{
 public:
+  //Constructor
   Handler(){
     //Subscribers
     Subscriber position_sub = nh.subscribe("object_pos", 1, &Handler::positionCallback,this);
@@ -27,36 +28,53 @@ public:
     ros::Publisher move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);
     ros::Publisher feedback_pub = nh.advertise<std_msgs::Int32>("feedback", 1);
   }
+  //Destructor
   ~Handler();
 
-  //Input values from GUI: reps, diff, and type
+  //Input values from GUI: reps, diff, type, and if running (run)
   void guiCallback(const rupee_msgs::Setup gui_msg){
-    ROS_INFO("I heard: [%d], [%d], [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type);
-    if(gui_msg.reps == 0){
+    ROS_INFO("I heard: [%d], [%d], [%d], [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type, gui_msg.run);
+    if(gui_msg.reps == 0 || !gui_msg.run){ //If gui not paused (reps = 0) or started (run = false) then it should not start
       start = false;
+      if(!gui_msg.run){
+        rep = 0;
+      }
     }
     else{
       start = true;
+      dif = gui_msg.diff;
+      ex = gui_msg.type;
+      feedback.data = rep;
     }
+    feedback_pub.publish(feedback); //Number of repetitions done
 
   }
-  //Object position, xyz
+  //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
   void positionCallback(const geometry_msgs::Point32& position_msg){
     ROS_INFO("I heard: [%f], [%f], [%f]", position_msg.x,position_msg.y,position_msg.z);
+    if(start){
+      moveit.move.data = true;
+    }
+    else{
+      moveit.move.data = false;
+    }
+    moveit.difficulty.data = dif;
+    moveit.exercise.data = ex;
+    moveit.location.x = position_msg.x;
+    moveit.location.y = position_msg.y;
+    moveit.location.z = position_msg.z;
+    move_pub.publish(moveit);
+
   }
   //JACO number of repetitions completed
   void processCallback(const std_msgs::Bool& process_msg){
     ROS_INFO("I head: [%d]",process_msg.data);
     if(start){
-      moveit.move.data = true;
-      std::cout << "x-position: " << std::endl;
-      std::cin >> moveit.location.x;
-      std::cout << "y-position: " << std::endl;
-      std::cin >> moveit.location.y;
-      std::cout << "z-position: " << std::endl;
-      std::cin >> moveit.location.z;
-      move_pub.publish(moveit);
+      if(process_msg.data){   //Whenever JACO returns true the repetition counter goes up
+        rep++;
+      }
     }
+
   }
 
 private:
@@ -68,9 +86,15 @@ private:
   Publisher move_pub;
   Publisher feedback_pub;
 
-  //Variables and objects
+  //Objects/Messages
   rupee_msgs::object_pos moveit;
+  std_msgs::Int32 feedback;
+
+  //Variables
   bool start;
+  int rep;
+  int dif;
+  int ex;
 };
 
 
