@@ -12,7 +12,6 @@
 using namespace ros;
 
 //Global Variables
-Rate loop_rate(10);
 
 //Class
 class Handler{
@@ -101,6 +100,7 @@ private:
 int main(int argc, char ** argv){
 
   init(argc, argv, "handler_node");
+  Rate loop_rate(10);
   Handler handler;
 
   while (true||ok()){

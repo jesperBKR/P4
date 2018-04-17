@@ -53,6 +53,7 @@ find_package(catkin REQUIRED
    FILES
    Setup.msg	
    object_pos.msg
+   camera.msg
  )
 
 ## Generate services in the 'srv' folder
