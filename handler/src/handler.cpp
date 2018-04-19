@@ -100,8 +100,9 @@ private:
 
 
 int main(int argc, char ** argv){
-
+  //Initiate ROS
   init(argc, argv, "handler_node");
+  //Instantiate the Handler class
   Handler handler;
 
   spin();
