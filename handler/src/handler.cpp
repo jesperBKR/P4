@@ -3,11 +3,11 @@
 #include<iostream>
 
 //Include Messages
-#include<geometry_msgs/Point32.h>
 #include<std_msgs/Int32.h>
 #include<std_msgs/Bool.h>
 #include"rupee_msgs/Setup.h"
 #include"rupee_msgs/object_pos.h"
+#include"rupee_msgs/camera.h"
 
 using namespace ros;
 
@@ -25,7 +25,7 @@ public:
 
     //Publishers
     ros::Publisher move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);
-    ros::Publisher feedback_pub = nh.advertise<std_msgs::Int32>("feedback", 1);
+    ros::Publisher feedback_pub = nh.advertise<std_msgs::Int32>("gui_feedback", 1);
   }
   //Destructor
   ~Handler(){
@@ -33,7 +33,7 @@ public:
   }
 
   //Input values from GUI: reps, diff, type, and if running (run)
-  void guiCallback(const rupee_msgs::Setup gui_msg){
+  void guiCallback(const rupee_msgs::Setup& gui_msg){
     ROS_INFO("I heard: [%d], [%d], [%d], [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type, gui_msg.run);
     if(gui_msg.reps == 0 || !gui_msg.run){ //If gui not paused (reps = 0) or started (run = false) then it should not start
       start = false;
@@ -45,15 +45,15 @@ public:
       start = true;
       dif = gui_msg.diff;
       ex = gui_msg.type;
-      feedback.data = rep;
+      gui_feedback.data = rep;
     }
     feedback_pub.publish(feedback); //Number of repetitions done
 
   }
   //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
-  void positionCallback(const geometry_msgs::Point32& position_msg){
+  void positionCallback(const rupee_msgs::camera& position_msg){
     ROS_INFO("I heard: [%f], [%f], [%f]", position_msg.x,position_msg.y,position_msg.z);
-    if(start){
+    if(start && position_msg.detected.data){
       moveit.move.data = true;
     }
     else{
@@ -61,9 +61,9 @@ public:
     }
     moveit.difficulty.data = dif;
     moveit.exercise.data = ex;
-    moveit.location.x = position_msg.x;
-    moveit.location.y = position_msg.y;
-    moveit.location.z = position_msg.z;
+    moveit.location.x = position_msg.location.x;
+    moveit.location.y = position_msg.location.y;
+    moveit.location.z = position_msg.location.z;
     move_pub.publish(moveit);
 
   }
