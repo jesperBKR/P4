@@ -45,14 +45,14 @@ public:
       start = true;
       dif = gui_msg.diff;
       ex = gui_msg.type;
-      gui_feedback.data = rep;
+      feedback.data = rep;
     }
     feedback_pub.publish(feedback); //Number of repetitions done
 
   }
   //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
   void positionCallback(const rupee_msgs::camera& position_msg){
-    ROS_INFO("I heard: [%f], [%f], [%f]", position_msg.x,position_msg.y,position_msg.z);
+    ROS_INFO("I heard: [%f], [%f], [%f]", position_msg.location.x,position_msg.location.y,position_msg.location.z);
     if(start && position_msg.detected.data){
       moveit.move.data = true;
     }
