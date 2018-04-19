@@ -19,13 +19,13 @@ public:
   //Constructor
   Handler(){
     //Subscribers
-    Subscriber position_sub = nh.subscribe("object_pos", 1, &Handler::positionCallback,this);
-    Subscriber gui_sub = nh.subscribe("This_topic", 1, &Handler::guiCallback,this);
-    Subscriber process_sub = nh.subscribe("process_JACO",1,&Handler::processCallback,this);
+    position_sub = nh.subscribe("object_pos", 1, &Handler::positionCallback,this);
+    gui_sub = nh.subscribe("This_topic", 1, &Handler::guiCallback,this);
+    process_sub = nh.subscribe("process_JACO",1,&Handler::processCallback,this);
 
     //Publishers
-    ros::Publisher move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);
-    ros::Publisher feedback_pub = nh.advertise<std_msgs::Int32>("gui_feedback", 1);
+    move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);
+    feedback_pub = nh.advertise<std_msgs::Int32>("gui_feedback", 1);
   }
   //Destructor
   ~Handler(){
@@ -103,15 +103,8 @@ int main(int argc, char ** argv){
 
   init(argc, argv, "handler_node");
   Handler handler;
-  Rate loop_rate(10);
 
-  while (true||ok()){
-
-  }
-
-  spinOnce();
-  loop_rate.sleep();
+  spin();
 
   return 0;
-
 }
