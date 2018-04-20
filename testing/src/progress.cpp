@@ -73,7 +73,7 @@ void subThread::process(){
 }
 void subThread::run(){
   ros::NodeHandle n;
-  chatter_subscriber = n.subscribe("This_topic", 1000, &subThread::subCallback, this);
+  chatter_subscriber = n.subscribe("GUI_feed", 1000, &subThread::subCallback, this);
 	ros::spin();
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)

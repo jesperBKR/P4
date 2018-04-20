@@ -94,7 +94,7 @@ init_argv(argv)
 ros_ready = false;
 ros::init(init_argc,init_argv,"testing");
 ros::NodeHandle n;
-chatter_publisher = n.advertise<rupee_msgs::Setup>("This_topic", 1000);
+chatter_publisher = n.advertise<rupee_msgs::Setup>("GUI_feed", 1000);
 }
 Worker::~Worker(){
 
@@ -108,7 +108,7 @@ bool Worker::init(){
   ros::start(); // explicitly needed since our nodehandle is going out of scope.
   ros::NodeHandle n;
   // Add your ros communications here.
-  chatter_publisher = n.advertise<rupee_msgs::Setup>("This_topic", 1000);
+  chatter_publisher = n.advertise<rupee_msgs::Setup>("GUI_feed", 1000);
   return true;
 }
 
