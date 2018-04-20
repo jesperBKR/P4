@@ -107,8 +107,8 @@
       <property name="title">
        <string/>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QPushButton" name="exerciseButton_1">
@@ -126,47 +126,10 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="1">
+       <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QPushButton" name="exerciseButton_3">
-           <property name="palette">
-            <palette>
-             <active>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>153</red>
-                 <green>204</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </active>
-             <inactive>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>153</red>
-                 <green>204</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </inactive>
-             <disabled>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>153</red>
-                 <green>204</green>
-                 <blue>255</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </disabled>
-            </palette>
-           </property>
            <property name="text">
             <string>Exericse 3</string>
            </property>
@@ -192,7 +155,7 @@
      <x>0</x>
      <y>0</y>
      <width>583</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -1089,9 +1052,16 @@
     </property>
     <addaction name="action_exercises"/>
    </widget>
+   <widget class="QMenu" name="menuAbout_2">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="action_help"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
    <addaction name="menuExercises"/>
+   <addaction name="menuAbout_2"/>
   </widget>
   <action name="action_exit">
    <property name="text">
@@ -1111,6 +1081,11 @@
   <action name="actionTesting_2">
    <property name="text">
     <string>Testing</string>
+   </property>
+  </action>
+  <action name="action_help">
+   <property name="text">
+    <string>Help</string>
    </property>
   </action>
  </widget>

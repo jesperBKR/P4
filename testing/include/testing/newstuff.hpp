@@ -104,6 +104,51 @@ public Q_SLOTS:
   void on_catch_button_clicked();
 };
 
+/*
+class HelpWindow : public QDialog{
+  Q_OBJECT
+public:
+  HelpWindow(Qstring title){
+    QVBoxLayout* vLayout = new QVBoxLayout(this);
+    QHBoxLayout* hLayout = new QHBoxLayout();
+    vLayout->addLayout(hLayout);
+
+    setWindowTitle(title);
+    QPushButton* pnp_button = new QPushButton("Pick & Place");
+    QPushButton* rng_button = new QPushButton("Reach & Grap");
+    QPushButton* ass_button = new QPushButton("Assistive");
+    QPushButton* taunt_button = new QPushButton("Taunt");
+    QPushButton* catch_button = new QPushButton("Catch");
+    hLayout->addWidget(pnp_button);
+    hLayout->addWidget(rng_button);
+    hLayout->addWidget(ass_button);
+    hLayout->addWidget(taunt_button);
+    hLayout->addWidget(catch_button);
+    QDesktopWidget dw;
+    int x=dw.width()*0.4;
+    int y=dw.height()*0.4;
+    setFixedSize(x,y);
+    QRect position = frameGeometry();
+    position.moveCenter(QDesktopWidget().availableGeometry().center());
+    move(position.topLeft());
+    connect(pnp_button, SIGNAL(clicked()), this,SLOT (on_pnp_button_clicked()));
+    connect(rng_button, SIGNAL(clicked()), this,SLOT (on_rng_button_clicked()));
+    connect(ass_button, SIGNAL(clicked()), this,SLOT (on_ass_button_clicked()));
+    connect(taunt_button, SIGNAL(clicked()), this,SLOT (on_taunt_button_clicked()));
+    connect(catch_button, SIGNAL(clicked()), this,SLOT (on_catch_button_clicked()));
+    setStyleSheet("QDialog {background-color: white;} QPushButton {background-color:rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;}  ");
+
+  }
+private:
+public Q_SLOTS:
+  void on_pnp_button_clicked();
+  void on_rng_button_clicked();
+  void on_ass_button_clicked();
+  void on_taunt_button_clicked();
+  void on_catch_button_clicked();
+
+};
+*/
 class CustomDialog : public QDialog{
   Q_OBJECT
 public:
@@ -176,6 +221,7 @@ public:
     QStringList itemList;
     QStringList stageList;
     QString cbox;
+    //QString Windowhelp;
 Q_SIGNALS:
   void startUp();
 public Q_SLOTS:
@@ -193,6 +239,7 @@ public Q_SLOTS:
 private Q_SLOTS:
 void on_action_exercises_triggered();
 void on_action_exit_triggered();
+//void on_action_help_triggered();
 private:
   Ui::newstuff *ui;
   void setExercise(int exercise_type);

@@ -1,6 +1,7 @@
 #include "../include/testing/progress.hpp"
 #include "../include/testing/newstuff.hpp"
 #include "ui_progress.h"
+#include "rupee_msgs/Setup.h"
 using namespace std;
 QString value;
 int rep_count;
@@ -77,7 +78,7 @@ void subThread::run(){
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
-void subThread::subCallback(const testing::Setup msg){
+void subThread::subCallback(const rupee_msgs::Setup msg){
   int ph = msg.reps;
   std::cout << ph << std::endl;
   value = "received: " + QString::number(ph) + " repetitions";

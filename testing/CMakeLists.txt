@@ -13,23 +13,23 @@ project(testing)
 find_package(catkin REQUIRED COMPONENTS 
 	qt_build 
 	roscpp 
-	message_generation
+	#message_generation
+	rupee_msgs
 	)
 include_directories(${catkin_INCLUDE_DIRS})
 # Use this to define what the package will export (e.g. libs, headers).
 # Since the default here is to produce only a binary, we don't worry about
 # exporting anything.
- add_message_files(
-   FILES
-   Setup.msg
-
- )
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-) 
+# add_message_files(
+#   FILES
+#   Setup.msg
+#)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#) 
 catkin_package(
-	CATKIN_DEPENDS message_runtime
+	CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs rupee_msgs
 	)
 
 
@@ -72,4 +72,5 @@ install(FILES
 add_executable(testing ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
 target_link_libraries(testing ${QT_LIBRARIES} ${catkin_LIBRARIES})
 install(TARGETS testing RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 

@@ -19,7 +19,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <sstream>
-#include "/home/larsg/Documents/Workspaces/P4_ws/src/P4/testing/msg/Setup.h"
+#include "/home/jesper/Documents/GitHub/P4/src/P4/testing/msg/Setup.h"
+#include "rupee_msgs/Setup.h"
 
 
 class subThread : public QObject {
@@ -34,7 +35,7 @@ public:
     bool ros_ready;
     std::string name;
     QString test;
-    void subCallback(const testing::Setup msg);
+    void subCallback(const rupee_msgs::Setup msg);
 
 public Q_SLOTS:
   void process();

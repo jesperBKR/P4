@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QVariant>
 #include <QPalette>
+#include "rupee_msgs/Setup.h"
 using namespace std;
 int reps,temp_reps;
 int current_stage,current_exercise;
@@ -28,10 +29,10 @@ newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   {
   itemList << "1" << "2" << "3" << "4" << "5" << "6" << "7" << "8" << "9" <<"10" <<"11" << "12" << "13" << "14" << "15";
   stageList << "Easy" <<"Medium" <<"Hard";
-  easy_exercise1 ="Exercise not set";normal_exercise1 ="Exercise not set";hard_exercise1 ="Exercise not set";
-  easy_exercise2 ="Exercise not set";normal_exercise2 ="Exercise not set";hard_exercise2 ="Exercise not set";
-  easy_exercise3 ="Exercise not set";normal_exercise3 ="Exercise not set";hard_exercise3 ="Exercise not set";
-  easy_exercise4 ="Exercise not set";normal_exercise4 ="Exercise not set";hard_exercise4 ="Exercise not set";
+  easy_exercise1 ="Easy exercise 1 not set";normal_exercise1 ="Medium exercise 1 not set";hard_exercise1 ="Hard exercise 1 not set";
+  easy_exercise2 ="Easy exercise 2 not set";normal_exercise2 ="Medium exercise 2 not set";hard_exercise2 ="Hard exercise 2 not set";
+  easy_exercise3 ="Easy exercise 3 not set";normal_exercise3 ="Medium exercise 3 not set";hard_exercise3 ="Hard exercise 3 not set";
+  easy_exercise4 ="Easy exercise 4 not set";normal_exercise4 ="Medium exercise 4 not set";hard_exercise4 ="Hard exercise 4 not set";
   ui->setupUi(this);
   this->setStyleSheet("background-color: white;");
   ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
@@ -41,13 +42,13 @@ newstuff::newstuff(int argc, char** argv, QWidget *parent) :
   ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
   ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
   ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
-  ui->exerciseButton_1->setText("Exercises not set");
+  ui->exerciseButton_1->setText("No exercises selected");
   ui->exerciseButton_1->setEnabled(false);
-  ui->exerciseButton_2->setText("Exercises not set");
+  ui->exerciseButton_2->setText("No exercises selected");
   ui->exerciseButton_2->setEnabled(false);
-  ui->exerciseButton_3->setText("Exercises not set");
+  ui->exerciseButton_3->setText("No exercises selected");
   ui->exerciseButton_3->setEnabled(false);
-  ui->exerciseButton_4->setText("Exercises not set");
+  ui->exerciseButton_4->setText("No exercises selected");
   ui->exerciseButton_4->setEnabled(false);
   ui->statusLabel->setStyleSheet("font-weight: bold");
   ui->statusLabel->setText("Difficulty");
@@ -93,7 +94,7 @@ init_argv(argv)
 ros_ready = false;
 ros::init(init_argc,init_argv,"testing");
 ros::NodeHandle n;
-chatter_publisher = n.advertise<testing::Setup>("This_topic", 1000);
+chatter_publisher = n.advertise<rupee_msgs::Setup>("This_topic", 1000);
 }
 Worker::~Worker(){
 
@@ -107,7 +108,7 @@ bool Worker::init(){
   ros::start(); // explicitly needed since our nodehandle is going out of scope.
   ros::NodeHandle n;
   // Add your ros communications here.
-  chatter_publisher = n.advertise<testing::Setup>("This_topic", 1000);
+  chatter_publisher = n.advertise<rupee_msgs::Setup>("This_topic", 1000);
   return true;
 }
 
@@ -115,7 +116,7 @@ void Worker::run() {
 
 	ros::Rate loop_rate(1);
 	while (ros::ok()) {
-    testing::Setup data;
+    rupee_msgs::Setup data;
     data.reps = reps;
     data.diff = 0;
     data.type = 0;
@@ -135,19 +136,19 @@ void newstuff::unhide(){
       ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
       ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
       ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
-      ui->statusLabel->setText("Difficulty \n Exercise Difficulty: Easy");
+      ui->statusLabel->setText("Exercise Difficulty: \n Easy");
       break;
     case 2:
       ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
       ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
       ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
-      ui->statusLabel->setText("Difficulty \n Exercise Difficulty: Medium");
+      ui->statusLabel->setText("Exercise Difficulty: \n Medium");
       break;
     case 3:
       ui->fugl0Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
       ui->fugl1Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
       ui->fugl2Button->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
-      ui->statusLabel->setText("Difficulty \n Exercise Difficulty: Hard");
+      ui->statusLabel->setText("Exercise Difficulty: \n Hard");
       break;
   }
   ui->exerciseButton_1->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: black;border-width: 3px;border-radius: 10px;");
@@ -646,6 +647,7 @@ void newstuff::on_action_exit_triggered(){
   this->close();
 }
 
+
 void newstuff::on_action_exercises_triggered(){
   CustomDialog dialog(stageList,"Select difficulty for exercises");
   int stage;
@@ -666,7 +668,12 @@ void newstuff::on_action_exercises_triggered(){
   }
   update(current_stage);
 }
+/*
+void newstuff::on_action_help_triggered(){
+  Selection dialog(title, "Instructions for the progam")
 
+}
+*/
 void newstuff::update(int stage){
   if(stage == 1){
     ui->exerciseButton_1->setText(easy_exercise1);
