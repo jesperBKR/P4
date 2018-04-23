@@ -19,13 +19,13 @@ public:
   //Constructor
   Handler(){
     //Subscribers
-    position_sub = nh.subscribe("object_pos", 1, &Handler::positionCallback,this);
-    gui_sub = nh.subscribe("This_topic", 1, &Handler::guiCallback,this);
-    process_sub = nh.subscribe("process_JACO",1,&Handler::processCallback,this);
+    position_sub = nh.subscribe("object_pos", 1, &Handler::positionCallback,this);  //Camera node subscriper.
+    gui_sub = nh.subscribe("GUI_feed", 1, &Handler::guiCallback,this);              //RUPEE app information.
+    process_sub = nh.subscribe("process_JACO",1,&Handler::processCallback,this);    //Information about JACO arm. Amount of repetitions done etc.
 
     //Publishers
-    move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);
-    feedback_pub = nh.advertise<std_msgs::Int32>("gui_feedback", 1);
+    move_pub = nh.advertise<rupee_msgs::object_pos>("move_to", 1);                  //Commands to move the JACO arm.
+    feedback_pub = nh.advertise<std_msgs::Int32>("gui_exInfo", 1);                //Reports back to the GUI about the progress of  the JACO arm.
   }
   //Destructor
   ~Handler(){
