@@ -73,15 +73,13 @@ void subThread::process(){
 }
 void subThread::run(){
   ros::NodeHandle n;
-  chatter_subscriber = n.subscribe("GUI_feed", 1000, &subThread::subCallback, this);
+  chatter_subscriber = n.subscribe("GUI_feedback", 1000, &subThread::subCallback, this);
 	ros::spin();
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
-void subThread::subCallback(const rupee_msgs::Setup msg){
-  int ph = msg.reps;
-  std::cout << ph << std::endl;
-  value = "received: " + QString::number(ph) + " repetitions";
+void subThread::subCallback(const std_msgs::Int8 msg){
+  int ph = msg.data;
   rep_count = ph;
   Q_EMIT update();
 }

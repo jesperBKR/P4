@@ -15,11 +15,11 @@
 #include <string>
 #include <QString>
 #include "std_msgs/String.h"
-#include "std_msgs/Int16.h"
+#include "std_msgs/Int8.h"
 #include <QTimer>
 #include <QElapsedTimer>
 #include <sstream>
-#include "/home/jesper/Documents/GitHub/P4/src/P4/testing/msg/Setup.h"
+//#include "/home/jesper/Documents/GitHub/P4/src/P4/testing/msg/Setup.h"
 #include "rupee_msgs/Setup.h"
 
 
@@ -35,7 +35,7 @@ public:
     bool ros_ready;
     std::string name;
     QString test;
-    void subCallback(const rupee_msgs::Setup msg);
+    void subCallback(const std_msgs::Int8 msg);
 
 public Q_SLOTS:
   void process();

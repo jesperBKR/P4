@@ -15,7 +15,7 @@
 #include "rupee_msgs/Setup.h"
 using namespace std;
 int reps,temp_reps;
-int current_stage,current_exercise;
+int current_stage,current_exercise,exercise_type;
 bool pub_gui = true;
 QString easy_exercise1,easy_exercise2,easy_exercise3,easy_exercise4;
 QString normal_exercise1,normal_exercise2,normal_exercise3,normal_exercise4;
@@ -118,8 +118,9 @@ void Worker::run() {
 	while (ros::ok()) {
     rupee_msgs::Setup data;
     data.reps = reps;
-    data.diff = 0;
-    data.type = 0;
+    data.diff = current_stage;
+    data.type = 1;
+    data.run = true;
 		chatter_publisher.publish(data);
 		ros::spinOnce();
 		loop_rate.sleep();
@@ -127,6 +128,7 @@ void Worker::run() {
   //std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
   //Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
+
 void newstuff::unhide(){
   cout<<"test"<<endl;
   this->show();
