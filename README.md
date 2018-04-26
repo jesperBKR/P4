@@ -34,7 +34,7 @@ cd ~/catkin_ws/
 catkin_make
 ```
 The workspace should now be setup correctly containing a build, devel and src folder. 
-Now move into the src folder and clone the repository containing the RUPEE software and do:
+Now move into the src folder and clone the repository containing the RUPEE software:
 ```
 cd ~/catkin_ws/src
 git clone https://github.com/raggyftw/P4.git
