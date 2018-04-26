@@ -48,6 +48,8 @@ public:
       feedback.data = rep;
     }
     feedback_pub.publish(feedback); //Number of repetitions done
+
+    //Oliver test stuff //*****
     moveit.move.data = true;
     //}
     //else{
@@ -59,6 +61,7 @@ public:
     moveit.location.y = -0.661769986153; //position_msg.location.y;
     moveit.location.z = 0.131685048342; //position_msg.location.z;
     move_pub.publish(moveit);
+    //*****
   }
   //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
   void positionCallback(const rupee_msgs::camera& position_msg){
