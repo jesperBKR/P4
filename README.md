@@ -47,7 +47,7 @@ catkin_make
 ```
 The executables should now have been built. 
 
-Running RUPEE 
+Running the application
 ------------
 To run the RUPEE software start up RUPEE App:
 ```
