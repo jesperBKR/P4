@@ -25,13 +25,28 @@ The project consist of a JACO arm and an IntelRealsense camera.
 
 How to build
 ------------
-First clone the repository:
+To setup the package the following steps must be followed.
+
+First create a new catkin workspace:
 ```
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/
+catkin_make
+```
+The workspace should now be setup correctly containing a build, devel and src folder. 
+Now move into the src folder and clone the repository containing the RUPEE software and do:
+```
+cd ~/catkin_ws/src
 git clone https://github.com/raggyftw/P4.git
 ```
+To build the package do:
+```
+cd ~/catkin_ws/
+catkin_make
+```
+The executables should now have been built. 
 
-To build the GUI:
+To run the RUPEE software start up RUPEE App:
 ```
-catkin_make --pkg testing
+roslaunch rupee_app rupee_app
 ```
-TODO: Add more commands and names?
