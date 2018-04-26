@@ -112,8 +112,8 @@ int main (int argc, char **argv)
       intrinsics color_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::color));
       intrinsics depth_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::depth));
       extrinsics extrin = convert_extrinsics(device->get_extrinsics(rs::stream::depth, rs::stream::color));
-      rs_extrinsics depth2color_extrinsic;
-      rs_get_device_extrinsics(rs_device, RS_STREAM_COLOR, RS_STREAM_DEPTH, &depth2color_extrinsic, &rs_error_);
+      // rs_extrinsics depth2color_extrinsic;
+      // rs_get_device_extrinsics(rs_device, RS_STREAM_COLOR, RS_STREAM_DEPTH, &depth2color_extrinsic, &rs_error_);
 
       auto projection_ = rs::utils::get_unique_ptr_with_releaser(projection_interface::create_instance(&color_intrin, &depth_intrin, &extrin));
 
