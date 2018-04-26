@@ -1,4 +1,4 @@
-4th Semester Project In Robotics AAU
+Group 461's 4th Semester Project In Robotics AAU
 ====================================
 
 This repository holds the RUPEE software  developed for Group 461's 4th semester project in robotics at AAU.
@@ -8,6 +8,7 @@ Prerequisites
 To be able to use this package the following prerequisites are required before use:
 * [Ubuntu 16.04.4 LTS](https://www.ubuntu.com/download/desktop "Ubuntu")
 * [ROS Kinetic Kame](http://wiki.ros.org/kinetic "ROS Kinetic Kame")
+* [Kinova-ROS](https://github.com/Kinovarobotics/kinova-ros "Kinova ROS Package")
 * [Librealsense legacy release](https://github.com/IntelRealSense/librealsense/blob/v1.12.1/doc/installation.md "librealsense")
 * [Some realsense SDK](https://github.com/IntelRealSense/librealsense/blob/v1.12.1/doc/installation.md "RealSense SDK")
 * [OpenCV 2.4 or newer](https://opencv.org/releases.html "OpenCV")
