@@ -17,7 +17,7 @@ The software package is validated using these prerequisites and cannot be guaran
 
 Installation
 -------------
-
+Some more indepth stuff here, mby scripts that install it all 
 
 Basic Information
 ------------
@@ -46,6 +46,8 @@ catkin_make
 ```
 The executables should now have been built. 
 
+Running RUPEE 
+------------
 To run the RUPEE software start up RUPEE App:
 ```
 roslaunch rupee_app rupee_app
