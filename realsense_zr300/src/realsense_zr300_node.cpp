@@ -1,12 +1,13 @@
 #include <memory>
 #include <vector>
 #include <iostream>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 
 #include "ros/ros.h"
 #include <std_msgs/String.h>
 #include <geometry_msgs/Point32.h>
+#include "rupee_msgs/camera.h"
 
 #include <librealsense/rs.hpp>
 
@@ -35,21 +36,21 @@ int main (int argc, char **argv)
     ros::NodeHandle nh;
 
     ros::Publisher chatter_pub = nh.advertise<std_msgs::String>("realsense_node", 1);
-    ros::Publisher position_pub = nh.advertise<geometry_msgs::Point32>("object_pos", 1);
+    ros::Publisher position_pub = nh.advertise<rupee_msgs::camera>("RS_object", 1);
     ros::Rate loop_rate(30);
 
     // Create a window for our test Control
     const char* control_window = "HSV - Control";
     cv::namedWindow(control_window, 0);
 
-    int lowHue = 34;
-    int highHue = 63;
+    int lowHue = 23;
+    int highHue = 82;
 
-    int lowSat = 202;
+    int lowSat = 104;
     int highSat = 255;
 
-    int lowVal = 137;
-    int highVal = 255;
+    int lowVal = 41;
+    int highVal = 114;
 
     const int maxThreshold = 100;
     int cannyThreshold  = 0;
@@ -73,6 +74,7 @@ int main (int argc, char **argv)
     cvCreateTrackbar("Canny low threshold", control_window, &cannyThreshold, maxThreshold);
 
     int count = 0;
+    // error message
     rs_error *rs_error_ = NULL;
     rs::context context;
     if(context.get_device_count() == 0)
@@ -82,7 +84,8 @@ int main (int argc, char **argv)
     }
 
     rs::device* device = context.get_device(0);
-    rs_device* rs_device;
+    // This instance of rs_device was put here to get the extrinsics of the camera
+    // rs_device* rs_device;
     const cv::String color_win_name = "Color Image";
     const cv::String depth_win_name = "Depth Image";
 
@@ -101,17 +104,10 @@ int main (int argc, char **argv)
 
     while ( ros::ok() || device->is_streaming() )
     {
-      // std_msgs::String msg;
-      // std::stringstream ss;
-      // ss << "Hello world " << count;
-      // msg.data = ss.str();
-      // chatter_pub.publish(msg);
-      // ros::spinOnce();
-      // count++;
-
       intrinsics color_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::color));
       intrinsics depth_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::depth));
       extrinsics extrin = convert_extrinsics(device->get_extrinsics(rs::stream::depth, rs::stream::color));
+      // Test to get the extrinsics
       // rs_extrinsics depth2color_extrinsic;
       // rs_get_device_extrinsics(rs_device, RS_STREAM_COLOR, RS_STREAM_DEPTH, &depth2color_extrinsic, &rs_error_);
 
@@ -376,11 +372,11 @@ int main (int argc, char **argv)
                                 0, 0, 0,      1;
 
             tr_robot_object = tr_robot_camera*tr_camera_object;
-            geometry_msgs::Point32 translate_object_msg;
-            translate_object_msg.x = tr_robot_object(0,3);
-            translate_object_msg.y = tr_robot_object(1,3);
-            translate_object_msg.z = tr_robot_object(2,3);
-
+            rupee_msgs::camera translate_object_msg;
+            translate_object_msg.location.x = tr_robot_object(0,3);
+            translate_object_msg.location.y = tr_robot_object(1,3);
+            translate_object_msg.location.z = tr_robot_object(2,3);
+            translate_object_msg.detected.data = true;
             position_pub.publish(translate_object_msg);
           }
         }
