@@ -299,7 +299,7 @@ int main (int argc, char **argv)
         for(size_t i = 0; i < color_coordinates.size(); i++)
         {
           if(mapped_dDepth_coordinates[i].x < 0 || mapped_dDepth_coordinates[i].y < 0){
-            cerr << "No depth data found! " << endl;
+            //cerr << "No depth data found! " << endl;
           } else
           {
             auto depth_image_info = depth_image->query_info();
@@ -322,19 +322,20 @@ int main (int argc, char **argv)
 
 
             // Robot to camera Transform, rotaion of Y, Z, and the translation
-            Eigen::Matrix4f tr_robot_camera, rot_robot2camera_y, rot_robot2camera_z, transl_robot_camera;
+            Eigen::Matrix4f tr_camera_robot, rot_camera2robot_y, rot_camera2robot_z, transl_robot_camera;
+            Eigen::Matrix4f rot_camera2robot_x;
 
             // Camera to object, we only need the translation in a transformation matrix
-            Eigen::Matrix4f tr_camera_object;
+            Eigen::Matrix4f tr_camera_object, rot_camera_y;
 
             // Robot to object Transformation matrix
             Eigen::Matrix4f tr_robot_object;
 
             // Point to store the transform from the robot to the camera
             point3dF32 translate_camera;
-            translate_camera.x = 0.1;
-            translate_camera.y = 0.1;
-            translate_camera.z = 0.1;
+          translate_camera.x = - 0.54;
+            translate_camera.y = 0;
+            translate_camera.z = 0.02;
 
 
             // Transform from depth to color frame
@@ -347,35 +348,54 @@ int main (int argc, char **argv)
 
             // Get the translation and rotation from the robot to the camera into
             // a transformation matrix
-            float theta = 90 * M_PI/180;
-            rot_robot2camera_y << cos(theta), 0, sin(theta),  0,
-                                      0,      1,     0,       0,
-                                  -sin(theta),0, cos(theta),  0,
-                                      0,      0,      0,      1;
+            float theta_90 = 90 * M_PI/180;
+            float theta_35 = 35 * M_PI/180;
 
-            rot_robot2camera_z << cos(theta),  sin(theta),  0,  0,
-                                  -sin(theta), cos(theta),  0,  0,
-                                        0,         0,       0,  0,
-                                        0,         0,       0,  1;
+            rot_camera2robot_z << cos(theta_90),  -sin(theta_90),   0,  0,
+                                  sin(theta_90),  cos(theta_90),    0,  0,
+                                        0,               0,           1,  0,
+                                        0,               0,           0,  1;
+
+            rot_camera2robot_x << 1,         0,              0,          0,
+                                  0,  cos(-theta_90),  -sin(-theta_90),  0,
+                                  0,  sin(-theta_90),   cos(-theta_90),  0,
+                                  0,         0,              0,          1;
+
+            // Rotation for the angle of the camera
+            rot_camera_y << cos(-theta_35),  0, sin(-theta_35),  0,
+                                  0,         1,      0,          0,
+                            -sin(-theta_35), 0, cos(-theta_35),  0,
+                                  0,         0,       0,         1;
+
+            tr_camera_object << 1, 0, 0, translate_object.x/1000,
+                                0, 1, 0, translate_object.y/1000,
+                                0, 0, 1, translate_object.z/1000,
+                                0, 0, 0,         1;
+            // rot_camera2robot_y << cos(-theta_90), 0, sin(-theta_90),  0,
+            //                           0,      1,     0,       0,
+            //                       -sin(-theta_90),0, cos(-theta_90),  0,
+            //                           0,      0,      0,      1;
+
 
             transl_robot_camera << 1, 0, 0, translate_camera.x,
                                    0, 1, 0, translate_camera.y,
                                    0, 0, 1, translate_camera.z,
                                    0, 0, 0,         1;
 
-            tr_robot_camera = rot_robot2camera_y*rot_robot2camera_z*transl_robot_camera;
+            tr_camera_robot = (((transl_robot_camera*rot_camera2robot_z*rot_camera2robot_z)*rot_camera2robot_x)*rot_camera_y)*tr_camera_object;
 
-            // Transformation matrix from the camera to the object
-            tr_camera_object << 1, 0, 0, translate_object.x/1000,
-                                0, 1, 0, translate_object.y/1000,
-                                0, 0, 1, translate_object.z/1000,
-                                0, 0, 0,      1;
 
-            tr_robot_object = tr_robot_camera*tr_camera_object;
+            // // Transformation matrix from the camera to the object
+            // tr_camera_object << 1, 0, 0, translate_object.x/1000,
+            //                     0, 1, 0, translate_object.y/1000,
+            //                     0, 0, 1, translate_object.z/1000,
+            //                     0, 0, 0,      1;
+            //
+            // tr_robot_object = tr_camera_robot*tr_camera_object;
             rupee_msgs::camera translate_object_msg;
-            translate_object_msg.location.x = tr_robot_object(0,3);
-            translate_object_msg.location.y = tr_robot_object(1,3);
-            translate_object_msg.location.z = tr_robot_object(2,3);
+            translate_object_msg.location.x = tr_camera_robot(0,3);
+            translate_object_msg.location.y = tr_camera_robot(1,3);
+            translate_object_msg.location.z = tr_camera_robot(2,3);
             translate_object_msg.detected.data = true;
             position_pub.publish(translate_object_msg);
           }
