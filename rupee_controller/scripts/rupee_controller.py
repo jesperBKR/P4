@@ -31,12 +31,14 @@ currentCartesianCommand = [0.212322831154, -0.257197618484, 0.509646713734, 1.63
 home_pos  = [0.212322592735,-0.256329715252,0.5066832304]
 home_ori  = [0.64524179697,0.319341748953,0.42331302166,0.549990773201]
 home_pose = [home_pos,home_ori]
-object_location = home_pos
+object_location = [0,0,0]
+offset = 0.10
 move = False
 done = False
 exercise_type = 1
 exercise_difficulty = 1
-orientation = [0.962,  0.267,  -0.000,  0.067]
+orientation = [0.962,  0.267,  -0.000,  0.067]#[0.999,0.01,-0.02,0.005]
+ori2 =[0.962,  0.267,  -0.000,  0.067]
 
 
 
@@ -88,6 +90,7 @@ def gripper_client(finger_positions):
         rospy.WARN('the gripper action timed-out')
         return None
 def moveArm(gripper_pos,ori,finger_status):
+    gripper_pos[2] = gripper_pos[2] + 0.10
     success = cartesian_pose_client(gripper_pos,ori)
     while not success:
         print("Moving to goal")
@@ -109,26 +112,25 @@ def kinova_robotTypeParser(kinova_robotType_):
 '''
 
 def random_coordinates(workspace_limit):
-    random_x = uniform(workspace_limit[0],workspace_limit[1])
-    random_y = uniform(workspace_limit[2],workspace_limit[3])
-    random_z = uniform(workspace_limit[4],workspace_limit[5])
+    random_x = object_location[0] + uniform(workspace_limit[0],workspace_limit[1])
+    random_y = object_location[1] + uniform(workspace_limit[2],workspace_limit[3])
+    random_z = object_location[2] + uniform(workspace_limit[4],workspace_limit[5])
     random_pos  = [random_x,random_y,random_z]
     return random_pos
 
-def determineWorkspace(difficulty):
+def determineWorkspace(difficulty,exercise):
+    if exercise == 1:
+        z = [0,0]
+    else:
+        z = [0.0,0.7]
     if difficulty == 1:
-        workspace = [0.14, 0.787,-0.34,-0.74,0.05,0.7]
-        #workspace = [x,-x,y,-y,z,-z] #TODO set z to be tabel height
+        workspace = [-difficulty*0.05,difficulty*0.05,-difficulty*0.10,difficulty*0.10,z[0],z[1]]#0.14, 0.787,-0.34,-0.74,0.05,0.7]
     elif difficulty == 2:
-        workspace = [x,-x,y,-y,z,-z]
+        workspace = [0,difficulty*0.10,0,difficulty*0.20,z[0],z[1]]
     elif difficulty == 3:
-        workspace = [x,-x,y,-y,z,-z]
-    elif difficulty == 4:
-        workspace = [x,-x,y,-y,z,-z]
-    elif difficulty == 5:
-        workspace = [x,-x,y,-y,z,-z]
+        workspace = [0,difficulty*0.10,0,difficulty*0.20,z[0],z[1]]
     return workspace
-
+'''
 def setWorkspace(difficulty,exercise):
     if exercise == 1:
         workspace = determineWorkspace(difficulty)
@@ -141,7 +143,7 @@ def setWorkspace(difficulty,exercise):
     elif exercise == 5:
         workspace = determineWorkspace(difficulty)
     return workspace
-
+'''
 def unitParser( finger_value_):
     finger_turn_command = [x/100.0 * finger_maxTurn for x in finger_value_]
     finger_turn_ = finger_turn_command
@@ -175,7 +177,7 @@ def handlerCallback(handler_data):
     exercise_type       = handler_data.exercise.data
     object_location[0]  = handler_data.location.x
     object_location[1]  = handler_data.location.y
-    object_location[2]  = handler_data.location.z
+    object_location[2]  = handler_data.location.z + offset
     move                = handler_data.move.data
 
 def JACOfeedback():
@@ -188,12 +190,12 @@ def JACOfeedback():
 def exerciseRun(exercise,difficulty):
     if (exercise == 1 or 2 or 3 or 4):
         if exercise == 1:
+            workspace = determineWorkspace(exercise,difficulty)
+            rand_pos = random_coordinates(determineWorkspace(exercise,difficulty))
             moveArm(object_location,orientation,"close")
-            workspace = setWorkspace(exercise,difficulty)
-            rand_pos = random_coordinates(workspace)
             moveArm(rand_pos,orientation,"open")
-            #moveArm(object_location,orientation,"close")
             moveArm(home_pose[0],home_pose[1],"open")
+        '''
         elif exercise == 2:
             moveArm(object_location,orientation,"close")
             workspace = setWorkspace(exercise,difficulty)
@@ -213,6 +215,7 @@ def exerciseRun(exercise,difficulty):
             moveArm(rand_pos_1,"")
             moveArm(rand_pos_2,"")
             #TODO stop when patient's hand is close to the EE so he can take object.
+        '''
     elif exercise == 5:
         print("Todo chase and touch")
         #TODO chase and touch, add later.
@@ -221,16 +224,22 @@ def exerciseRun(exercise,difficulty):
 
 if __name__ == '__main__':
     rospy.init_node(prefix + 'pose_action_client')
+    for x in range(0, 10):
+        print(random_coordinates(determineWorkspace(1,1)))
     #kinova_robotTypeParser(prefix)
     moveArm(home_pose[0],home_pose[1],"open")
     while not rospy.is_shutdown():
         rospy.Subscriber("JACO_goal", object_pos, handlerCallback)
         if(move):
             try:
-                done = False
-                exerciseRun(exercise_type,exercise_difficulty)
-                done = True
-                JACOfeedback()
+                print(object_location)
+                print(orientation)
+                cartesian_pose_client([0.005,-0.70,0.10],orientation)
+                #cartesian_pose_client(home_pos,home_ori)
+                #done = False
+                #exerciseRun(exercise_type,exercise_difficulty)
+                #done = True
+                #JACOfeedback()
                 print('Rep done')
             except rospy.ROSInterruptException:
                 print "program interrupted before completion"
