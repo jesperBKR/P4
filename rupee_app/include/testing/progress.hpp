@@ -36,6 +36,7 @@ public:
     std::string name;
     QString test;
     void subCallback(const std_msgs::Int8 msg);
+    //void repsCallback(const std_msgs::Int8 msg);
 
 public Q_SLOTS:
   void process();
@@ -79,7 +80,7 @@ private:
   Ui::progress *ui;
   void closeEvent(QCloseEvent *event);
   void showEvent(QShowEvent *event);
-  int secs,mins,fake_time;
+  int secs,mins,fake_time,hours;
   std::string sec,min,secmin;
 };
 

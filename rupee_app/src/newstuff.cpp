@@ -5,6 +5,7 @@
 #include <QButtonGroup>
 #include <QThread>
 
+
 //Include cpp libraries
 
 #include <ros/ros.h>
@@ -101,7 +102,7 @@ Rupee::Rupee(int argc, char** argv, QWidget *parent) :
 }
 
 void Rupee::unhide(){
-  cout<<"test"<<endl;
+  cout<<"\ntest"<<endl;
   this->show();
   reps = 0;
   switch (current_stage) {
