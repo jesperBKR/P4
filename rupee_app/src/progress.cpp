@@ -141,6 +141,7 @@ void progress::showEvent(QShowEvent *event){
 
 void progress::on_stopButton_clicked(){
   etimer->invalidate();
+  timer->stop();
   prev_min = 0;
   prev_sec = 0;
   secs = 0;
@@ -149,7 +150,6 @@ void progress::on_stopButton_clicked(){
   reps_done = 0;
   reps_left = 0;
   display_prog = 0;
-  timer->stop();
   ui->lcdNumber->display("00:00");
   this->close();
 }
@@ -171,13 +171,13 @@ void progress::on_pauseButton_clicked(){
   }
 
 }
-void progress::updateUI(){
+
+  void progress::updateUI(){
   secs = (etimer->elapsed()/ 1000)+prev_sec;
   mins = ((secs/60)%60)+prev_min;
   hours = ((mins/60)%60)+prev_hour;
   reps_done = secs -1 ;
   reps_left = rep_count - reps_done;
-  value = "Exercise done";
   std::cout << "Selected repetitions: " << rep_count << std::endl;
   std::cout << "Repetitions left: " << reps_left << std::endl;
   if (rep_count != 0)
@@ -186,11 +186,8 @@ void progress::updateUI(){
    }
   if (reps_left <=-1 || reps_left > 15)
   {
-
     display_prog = 100;
-    progress::on_pauseButton_clicked();
-    reps_done = 0;
-    reps_left = 0;
+    progress::on_stopButton_clicked();
   }
     if (ui->pauseButton->text() == "Pause")
     {

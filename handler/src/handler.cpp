@@ -19,7 +19,7 @@ public:
   //Constructor
   Handler(){
     //Subscribers
-  //  position_sub = nh.subscribe("RS_object", 1, &Handler::positionCallback,this);
+  //position_sub = nh.subscribe("RS_object", 1, &Handler::positionCallback,this);
     gui_sub = nh.subscribe("GUI_feed", 1, &Handler::guiCallback,this);
     process_sub = nh.subscribe("JACO_feedback",1,&Handler::processCallback,this);
 
