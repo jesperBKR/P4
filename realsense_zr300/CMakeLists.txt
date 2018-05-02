@@ -127,16 +127,15 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories( ${catkin_INCLUDE_DIRS} )
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 include_directories( ${librealsense_INCLUDE_DIRS} )
 
-#include_directories( ${EIGEN3_INCLUDE_DIRS})
+include_directories( ${PROJECT_NAME}
+#                  include/realsense_zr300 
+)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
