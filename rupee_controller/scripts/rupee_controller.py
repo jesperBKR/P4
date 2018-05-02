@@ -124,7 +124,7 @@ def determineWorkspace(difficulty,exercise):
     else:
         z = [0.0,0.7]
     if difficulty == 1:
-        workspace = [-difficulty*0.05,difficulty*0.05,-difficulty*0.10,difficulty*0.10,z[0],z[1]]#0.14, 0.787,-0.34,-0.74,0.05,0.7]
+        workspace = [-difficulty*0.05,difficulty*0.05,-difficulty*0.10,difficulty*0,z[0],z[1]]#0.14, 0.787,-0.34,-0.74,0.05,0.7]
     elif difficulty == 2:
         workspace = [0,difficulty*0.10,0,difficulty*0.20,z[0],z[1]]
     elif difficulty == 3:
@@ -224,22 +224,22 @@ def exerciseRun(exercise,difficulty):
 
 if __name__ == '__main__':
     rospy.init_node(prefix + 'pose_action_client')
-    for x in range(0, 10):
-        print(random_coordinates(determineWorkspace(1,1)))
+    #for x in range(0, 10):
+    #    print(random_coordinates(determineWorkspace(1,1)))
     #kinova_robotTypeParser(prefix)
     moveArm(home_pose[0],home_pose[1],"open")
     while not rospy.is_shutdown():
         rospy.Subscriber("JACO_goal", object_pos, handlerCallback)
         if(move):
             try:
-                print(object_location)
-                print(orientation)
-                cartesian_pose_client([0.005,-0.70,0.10],orientation)
+                #print(object_location)
+                #print(orientation)
+                #cartesian_pose_client([0.005,-0.70,0.10],orientation)
                 #cartesian_pose_client(home_pos,home_ori)
-                #done = False
-                #exerciseRun(exercise_type,exercise_difficulty)
-                #done = True
-                #JACOfeedback()
+                done = False
+                exerciseRun(exercise_type,exercise_difficulty)
+                done = True
+                JACOfeedback()
                 print('Rep done')
             except rospy.ROSInterruptException:
                 print "program interrupted before completion"
