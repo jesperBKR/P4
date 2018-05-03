@@ -36,7 +36,7 @@ home_ori  = [0.64524179697,0.319341748953,0.42331302166,0.549990773201]
 home_pose = [home_pos,home_ori]
 workspace_constant = [0.0,-0.60,0.1]
 object_location = [0,0,0]
-offset = 0.10
+offset = 0.09
 move = False
 loop = True
 exercise_type = 1
@@ -136,9 +136,10 @@ def exerciseOne(difficulty):
 def exerciseTwo(difficulty):
     rand_pos = randomCoordinatesTwo(difficulty)
     moveArm(object_location,orientation,"close")
-    #moveArm(rand_pos,orientation,"")
-    #print('Random position is :', rand_pos )
-    #moveArm(home_pose[0],home_pose[1],"")
+    moveArm(rand_pos,orientation,"")
+    print('Random position is :', rand_pos )
+    if (object_location[2] >0.05):
+        moveArm(home_pose[0],home_pose[1],"open")
 def exerciseThree(difficulty):
     pass
 def exerciseFour(difficulty):
@@ -233,10 +234,6 @@ def handlerCallback(handler_data):
     object_location[1]  = handler_data.location.y
     object_location[2]  = handler_data.location.z + offset
     move                = handler_data.move.data
-def fingerCallback(Wrench):
-    print("Hej")
-    #torque_total  = wrench.torque.x + wrench.torque.y + wrench.torque.z
-    print (Wrench.wrench.torque.x)
 
 def JACOFeedbackPub(done):
     pub = rospy.Publisher('JACO_feedback', Bool, queue_size=10)
@@ -245,13 +242,12 @@ def JACOFeedbackPub(done):
     pub.publish(rep_done)
     rate.sleep()
 
-
+#rate = rospy.Rate
 if __name__ == '__main__':
     rospy.init_node(prefix + 'pose_action_client')
     moveArm(home_pose[0],home_pose[1],"open")
     while not rospy.is_shutdown():
         rospy.Subscriber("JACO_goal", object_pos, handlerCallback)
-        rospy.Subscriber("/j2n6s300_driver/out/tool_wrench",WrenchStamped, fingerCallback)
         if(loop):
             JACOFeedbackPub(True)
             loop = False
