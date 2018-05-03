@@ -4,6 +4,7 @@
 #include <QPalette>
 #include <QButtonGroup>
 #include <QThread>
+#include <QString>
 
 
 //Include cpp libraries
@@ -26,7 +27,7 @@
 
 using namespace std;
 /*********Global variables**********/
-int reps,temp_reps;
+int reps,temp_reps,exbut;
 int current_stage,current_exercise,exercise_type;
 QStringList exerciseList;
 bool pub_gui = true;
@@ -91,6 +92,7 @@ Rupee::Rupee(int argc, char** argv, QWidget *parent) :
   connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
   connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
 }
 
  Rupee::~Rupee()
@@ -157,6 +159,24 @@ void Rupee::pausePub(){
 
 void Rupee::playPub(){
   reps = temp_reps;
+}
+/*
+Jesper: Testing a few buttons to check if they work
+*/
+
+void Rupee::on_addButton_clicked(){
+  exercise_buttons.button(0)->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
+  exercise_buttons.button(0)->setText("No exercises selected");
+  exercise_buttons.button(0)->setEnabled(false);
+  exercise_buttons.button(0)->show();
+}
+
+
+void Rupee::on_action_help_triggered(){
+  QMessageBox helpBox;
+  helpBox.setWindowTitle("Help Assistant");
+  helpBox.setText("To Select an exercise, choose a difficulty from one of the three buttons in the program.\n\nOnce a difficulty has been chosen, a window to choose the exercise will pop up.\n\n The amount of repetitions desired for the chosen exercise can now be chosen from a dropdown menu, varying between 1 to 15.\n\nHave fun! :)");
+  helpBox.exec();
 }
 
 void Rupee::on_fugl0Button_clicked(){
@@ -639,12 +659,7 @@ void Rupee::on_action_exercises_triggered(){
   }
   update(current_stage);
 }
-/*
-void Rupee::on_action_help_triggered(){
-  Selection dialog(title, "Instructions for the progam")
 
-}
-*/
 void Rupee::update(int stage){
   if(stage == 1){
     on_fugl0Button_clicked();

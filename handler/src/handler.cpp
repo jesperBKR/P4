@@ -47,21 +47,52 @@ public:
     moveit.location.z = 0.131685048342; //position_msg.location.z;
     move_pub.publish(moveit);
     //*****
+<<<<<<< HEAD
+  //Input values from GUI: reps, diff, type, and if running (run)
+  void guiCallback(const rupee_msgs::Setup& gui_msg){
+    ROS_INFO("Reps: [%d], Difficulty: [%d], Exercise Type: [%d], Move: [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type, gui_msg.run);
+    if(gui_msg.reps == 0 || !gui_msg.run){ //If gui not paused (reps = 0) or started (run = false) then it should not start
+      start = false;
+      if(!gui_msg.run){
+        rep = 0;
+      }
+    }
+    else{
+      start = true;
+      dif = gui_msg.diff;
+      ex = gui_msg.type;
+      feedback.data = rep;
+    }
+    feedback_pub.publish(feedback); //Number of repetitions done
+
+//    //Oliver test stuff //*****
+//    moveit.move.data = true;
+//    //}
+//    //else{
+//    //  moveit.move.data = false;
+//    //}
+//    moveit.difficulty.data = dif;
+//    moveit.exercise.data = ex;
+//    moveit.location.x = 0.1539178662002; //position_msg.location.x;
+//    moveit.location.y = -0.661769986153; //position_msg.location.y;
+//    moveit.location.z = 0.131685048342; //position_msg.location.z;
+//    move_pub.publish(moveit);
+//    //*****
   }
   //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
   void positionCallback(const rupee_msgs::camera& position_msg){
     ROS_INFO("Postion x:[%f], y: [%f], z: [%f]", position_msg.location.x,position_msg.location.y,position_msg.location.z);
-    //if(start && position_msg.detected.data){
+    if(start && position_msg.detected.data){
     moveit.move.data = true;
-    //}
-    //else{
-    //  moveit.move.data = false;
-    //}
+    }
+    else{
+      moveit.move.data = false;
+    }
     moveit.difficulty.data = dif;
     moveit.exercise.data = ex;
-    moveit.location.x = 0.1539178662002; //position_msg.location.x;
-    moveit.location.y = -0.661769986153; //position_msg.location.y;
-    moveit.location.z = 0.131685048342; //position_msg.location.z;
+    moveit.location.x = position_msg.location.x;
+    moveit.location.y = position_msg.location.y;
+    moveit.location.z = position_msg.location.z;
     move_pub.publish(moveit);
 */
 

@@ -190,11 +190,13 @@ public Q_SLOTS:
   void unhide();
   void pausePub();
   void playPub();
+  void on_addButton_clicked();
+
 
 private Q_SLOTS:
 void on_action_exercises_triggered();
 void on_action_exit_triggered();
-//void on_action_help_triggered();
+void on_action_help_triggered();
 private:
   Ui::Rupee *ui;
 
