@@ -137,8 +137,11 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(${PROJECT_NAME} src/handler.cpp)
+
+ add_executable(test_node src/test_node.cpp)
  #add_dependencies(handler handler_generate_messages_cpp)
  add_dependencies(handler ${catkin_EXPORTED_TARGETS})
+ add_dependencies(test_node ${catkin_EXPORTED_TARGETS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -153,7 +156,9 @@ include_directories(
  target_link_libraries(${PROJECT_NAME}
    ${catkin_LIBRARIES}
  )
-
+target_link_libraries(test_node
+   ${catkin_LIBRARIES}
+ )
 #############
 ## Install ##
 #############
