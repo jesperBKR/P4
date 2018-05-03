@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   geometry_msgs
-  rupee_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -117,7 +116,7 @@ find_package( librealsense REQUIRED )
 catkin_package(
 #  INCLUDE_DIRS ...
   LIBRARIES realsense_zr300
-  CATKIN_DEPENDS roscpp rospy std_msgs librealsense rupee_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs librealsense
   #DEPENDS Eigen3
 )
 
@@ -127,15 +126,16 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories( ${catkin_INCLUDE_DIRS} )
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
+)
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 include_directories( ${librealsense_INCLUDE_DIRS} )
 
-include_directories( ${PROJECT_NAME}
-#                  include/realsense_zr300 
-)
+#include_directories( ${EIGEN3_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

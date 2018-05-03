@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Rupee</class>
- <widget class="QMainWindow" name="Rupee">
+ <class>newstuff</class>
+ <widget class="QMainWindow" name="newstuff">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -97,13 +97,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="addButton">
-      <property name="text">
-       <string>Add Session</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QGroupBox" name="exerciseArea">
       <property name="font">
        <font>
@@ -152,13 +145,6 @@
         </layout>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="startButton">
-      <property name="text">
-       <string>Start Exercise</string>
-      </property>
      </widget>
     </item>
    </layout>

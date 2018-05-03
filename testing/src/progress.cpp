@@ -2,11 +2,10 @@
 #include "../include/testing/newstuff.hpp"
 #include "ui_progress.h"
 #include "rupee_msgs/Setup.h"
-#include <QMessageBox>
 using namespace std;
 QString value;
-int rep_count, reps_done, reps_left, display_prog;
-int prev_sec, prev_min, prev_hour;
+int rep_count;
+int prev_sec, prev_min;
 progress::progress(int argc, char** argv, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::progress),
@@ -43,7 +42,6 @@ progress::progress(int argc, char** argv, QWidget *parent) :
   connect(sub, SIGNAL(update()), this, SLOT(updateUI()));
   timer = new QTimer(this);
   etimer = new QElapsedTimer;
-  hours= 0;
   mins = 0;
   secs = 0;
   connect(timer, SIGNAL(timeout()),this,SLOT(timer_tick()));
@@ -77,37 +75,22 @@ void subThread::run(){
   ros::NodeHandle n;
   chatter_subscriber = n.subscribe("GUI_feedback", 1000, &subThread::subCallback, this);
 	ros::spin();
-    if (rep_count <= -1 || rep_count > 15)
-    {
-	     std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
-	     Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
-    }
+	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
+	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
-
-
-/*
-
-void subThread::repsCallback(const std_msgs::Int8 msg){
-  int reps_counter = msg.data;
-  rep_count = reps_counter;
-  Q_EMIT update();
-}
-
-*/
-
 void subThread::subCallback(const std_msgs::Int8 msg){
-  int rep_feedback = msg.data;
-  rep_count = rep_feedback;
+  int ph = msg.data;
+  rep_count = ph;
   Q_EMIT update();
 }
-
 
 void progress::timer_tick(){
   if (etimer->isValid()){
     secs = (etimer->elapsed()/ 1000)+prev_sec;
-    mins = ((secs/60)%60);
+    mins = ((secs/60)%60)+prev_min;
     secs = secs % 60;
     std::stringstream ss;
+
     if(mins < 10 && secs < 10){
       ss<<"0"<< mins <<":" <<"0"<<secs;
     }
@@ -124,10 +107,7 @@ void progress::timer_tick(){
     QString qstr =QString::fromStdString(secmin);
     ui->lcdNumber->display(qstr);
   }
-  progress::updateUI();
 }
-
-
 void progress::closeEvent(QCloseEvent *event){
   Q_EMIT windowClosed();
   event->accept();
@@ -135,6 +115,7 @@ void progress::closeEvent(QCloseEvent *event){
 
 void progress::showEvent(QShowEvent *event){
   sthread->start();
+
   etimer->start();
   timer->start(1000);
 }
@@ -142,15 +123,6 @@ void progress::showEvent(QShowEvent *event){
 void progress::on_stopButton_clicked(){
   etimer->invalidate();
   timer->stop();
-  prev_min = 0;
-  prev_sec = 0;
-  secs = 0;
-  mins = 0;
-  rep_count = 0;
-  reps_done = 0;
-  reps_left = 0;
-  display_prog = 0;
-  ui->lcdNumber->display("00:00");
   this->close();
 }
 
@@ -159,7 +131,7 @@ void progress::on_pauseButton_clicked(){
     Q_EMIT pause();
     ui->pauseButton->setText("Play");
     prev_sec = prev_sec + etimer->elapsed() /1000;
-    prev_min = (prev_sec/60)%60;
+    prev_min = prev_min + (prev_sec/60)%60;
     etimer->invalidate();
     timer->stop();
   }
@@ -171,32 +143,19 @@ void progress::on_pauseButton_clicked(){
   }
 
 }
-
-  void progress::updateUI(){
+void progress::updateUI(){
   secs = (etimer->elapsed()/ 1000)+prev_sec;
   mins = ((secs/60)%60)+prev_min;
-  hours = ((mins/60)%60)+prev_hour;
-  reps_done = secs -1 ;
-  reps_left = rep_count - reps_done;
-  std::cout << "Selected repetitions: " << rep_count << std::endl;
-  std::cout << "Repetitions left: " << reps_left << std::endl;
-  if (rep_count != 0)
-   {
+  int display_prog;
+  int reps_done = mins;
+  if (rep_count != 0){
     display_prog = (100/rep_count)*reps_done;
-   }
-  if (reps_left <=-1 || reps_left > 15)
-  {
-    display_prog = 100;
-    progress::on_stopButton_clicked();
   }
-    if (ui->pauseButton->text() == "Pause")
-    {
-    //  Q_EMIT play();
-      ui->progressBar->setValue(display_prog);
-    //  ui->descriptionText->setText(value);
-    }
-      else
-        {
-      //    ui->descriptionText->setText(value);
-        }
+  if (ui->pauseButton->text() == "Pause"){
+    ui->progressBar->setValue(display_prog);
+    ui->descriptionText->setText(value);
   }
+  else {
+    ui->descriptionText->setText(value);
+}
+}
