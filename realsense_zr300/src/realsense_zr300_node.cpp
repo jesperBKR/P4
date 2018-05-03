@@ -5,7 +5,7 @@
 #include <math.h>
 
 #include <ros/ros.h>
-#include <geometry_msgs/Point32.h>
+#include "rupee_msgs/camera.h"
 
 #include <librealsense/rs.hpp>
 
@@ -45,7 +45,7 @@ int main (int argc, char **argv)
     int lowSat = 106; //104
     int highSat = 255;
 
-    int lowVal = 0; //41
+    int lowVal = 48; //41
     int highVal = 255; //114
 
     const int maxThreshold = 100;
@@ -75,7 +75,7 @@ int main (int argc, char **argv)
 
 /*        HSV GUI for Hand          */
     // Values for HSV threshold
-    int lowHandHue = 108; //93, 97
+    int lowHandHue = 119; //93, 97
     int highHandHue = 156; //172
 
     int lowHandSat = 12; //0, 45
@@ -126,14 +126,6 @@ int main (int argc, char **argv)
 
     while ( ros::ok() || device->is_streaming() )
     {
-      // std_msgs::String msg;
-      // std::stringstream ss;
-      // ss << "Hello world " << count;
-      // msg.data = ss.str();
-      // chatter_pub.publish(msg);
-      // ros::spinOnce();
-      // count++;
-
       intrinsics color_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::color));
       intrinsics depth_intrin = convert_intrinsics(device->get_stream_intrinsics(rs::stream::depth));
       extrinsics extrin = convert_extrinsics(device->get_extrinsics(rs::stream::depth, rs::stream::color));
@@ -474,13 +466,13 @@ int main (int argc, char **argv)
             }
 
             // Robot to camera Transform, rotaion of Y, Z, and the translation
-            Eigen::Matrix4f tr_robot_camera, rot_robot2camera_y, rot_robot2camera_z, transl_robot_camera;
+            Eigen::Matrix4f tr_robot_camera, rot_camera_y, rot_robot2camera_z, transl_robot_camera;
 
             // Camera to object, we only need the translation in a transformation matrix
-            Eigen::Matrix4f tr_camera_object;
+            Eigen::Matrix4f tr_camera_object, rot_camera2robot_z, rot_camera2robot_x;
 
             // Robot to object Transformation matrix
-            Eigen::Matrix4f tr_robot_object;
+            Eigen::Matrix4f tr_camera_robot;
 
             // Point to store the transform from the robot to the camera
             point3dF32 translate_camera;
@@ -498,33 +490,35 @@ int main (int argc, char **argv)
 
             // Get the translation and rotation from the robot to the camera into
             // a transformation matrix
-            float theta = 90 * M_PI/180;
-            rot_robot2camera_y << cos(theta), 0, sin(theta),  0,
-                                      0,      1,     0,       0,
-                                  -sin(theta),0, cos(theta),  0,
-                                      0,      0,      0,      1;
+            float theta_90 = 90 * M_PI/180;
+            float theta_35 = 35 * M_PI/180;
 
             rot_camera2robot_z << cos(theta_90),  -sin(theta_90),   0,  0,
                                   sin(theta_90),  cos(theta_90),    0,  0,
                                         0,               0,         1,  0,
                                         0,               0,         0,  1;
 
+            rot_camera2robot_x << 1,        0,                0,        0,
+                                  0,  cos(-theta_90),  -sin(-theta_90), 0,
+                                  0,  sin(-theta_90),   cos(-theta_90), 0,
+                                  0,        0,                0,        1;
+
+            rot_camera_y << cos(-theta_35), 0, sin(-theta_35),  0,
+                                  0,       1,     0,           0,
+                           -sin(-theta_35),0, cos(-theta_35),  0,
+                                    0,     0,      0,          1;
+
+
+
             transl_robot_camera << 1, 0, 0, translate_camera.x,
                                    0, 1, 0, translate_camera.y,
                                    0, 0, 1, translate_camera.z,
                                    0, 0, 0,         1;
 
-            tr_robot_camera = rot_robot2camera_y*rot_robot2camera_z*transl_robot_camera;
-
-            tr_camera_object << 1, 0, 0, object_position.x/1000,
-                                0, 1, 0, object_position.y/1000,
-                                0, 0, 1, object_position.z/1000,
-                                0, 0, 0,         1;
-
-            transl_robot_camera << 1, 0, 0, translate_camera.x,
-                                   0, 1, 0, translate_camera.y,
-                                   0, 0, 1, translate_camera.z,
-                                   0, 0, 0,         1;
+           tr_camera_object << 1, 0, 0, object_position.x/1000,
+                               0, 1, 0, object_position.y/1000,
+                               0, 0, 1, object_position.z/1000,
+                               0, 0, 0,         1;
 
             tr_camera_robot = (((transl_robot_camera*rot_camera2robot_z*rot_camera2robot_z)*rot_camera2robot_x)*rot_camera_y)*tr_camera_object;
 
@@ -589,11 +583,13 @@ int main (int argc, char **argv)
         float x = hand_position.x-object_position.x;
         float y = hand_position.y-object_position.y;
         float z = hand_position.z-object_position.z;
-        float d = sqrt( pow(x,2) + pow(y,2) + pow(z,2) );
+        float d = sqrt( fabs( pow(x,2) + pow(y,2) + pow(z,2)) );
         cout << "d: " << d << endl;
 
         if( d > 200)
         {
+          object_position_msg.detected.data = true;
+        }else{
           object_position_msg.detected.data = false;
         }
       }else{

@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   geometry_msgs
+  rupee_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -116,7 +117,7 @@ find_package( librealsense REQUIRED )
 catkin_package(
 #  INCLUDE_DIRS ...
   LIBRARIES realsense_zr300
-  CATKIN_DEPENDS roscpp rospy std_msgs librealsense
+  CATKIN_DEPENDS roscpp rospy std_msgs librealsense rupee_msgs
   #DEPENDS Eigen3
 )
 

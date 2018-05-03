@@ -176,7 +176,7 @@ void progress::on_pauseButton_clicked(){
   secs = (etimer->elapsed()/ 1000)+prev_sec;
   mins = ((secs/60)%60)+prev_min;
   hours = ((mins/60)%60)+prev_hour;
-  reps_done = secs -1 ;
+
   reps_left = rep_count - reps_done;
   std::cout << "Selected repetitions: " << rep_count << std::endl;
   std::cout << "Repetitions left: " << reps_left << std::endl;
@@ -187,7 +187,7 @@ void progress::on_pauseButton_clicked(){
   if (reps_left <=-1 || reps_left > 15)
   {
     display_prog = 100;
-    progress::on_stopButton_clicked();
+  //  progress::on_stopButton_clicked();
   }
     if (ui->pauseButton->text() == "Pause")
     {

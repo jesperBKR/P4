@@ -35,10 +35,10 @@ public:
   //Input values from GUI: reps, diff, type, and if running (run)
   void guiCallback(const rupee_msgs::Setup& gui_msg){
     ROS_INFO("Reps: [%d], Difficulty: [%d], Exercise Type: [%d], Move: [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type, gui_msg.run);
-    if(gui_msg.reps == 0 || !gui_msg.run){ //If gui not paused (reps = 0) or started (run = false) then it should not start
+    if(gui_msg.reps == 0 /*|| !gui_msg.run*/){ //If gui not paused (reps = 0) or started (run = false) then it should not start
       start = false;
       if(!gui_msg.run){
-        rep = 0;
+        //rep = 0;
       }
     }
     else{
