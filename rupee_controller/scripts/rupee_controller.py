@@ -60,7 +60,7 @@ def cartesian_pose_client(position, orientation):
         x=orientation[0], y=orientation[1], z=orientation[2], w=orientation[3])
     client.send_goal(goal)
 
-    if client.wait_for_result(rospy.Duration(10.0)):
+    if client.wait_for_result(rospy.Duration(15.0)):
         return client.get_result()
     else:
         client.cancel_all_goals()

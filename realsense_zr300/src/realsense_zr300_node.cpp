@@ -53,6 +53,17 @@ int main (int argc, char **argv)
     // Canny thresholds input with a ratio 1:3
     int ratio = 3;
 
+    int xValue = 50;
+    int yValue = 1;
+    int zValue = 2;
+    // Create a window to change the x-y-z translations for the camera
+    const char* trans_window = "Translation controls for robot to camera";
+    cv::namedWindow(trans_window, CV_WINDOW_KEEPRATIO);
+
+    cvCreateTrackbar("X Value", trans_window, &xValue, 100);
+    cvCreateTrackbar("Y Value", trans_window, &yValue, 100);
+    cvCreateTrackbar("Z Value", trans_window, &zValue, 100);
+
     // Create a window for our test Control
     const char* control_window = "HSV - Object - Control";
     cv::namedWindow(control_window, CV_WINDOW_KEEPRATIO);
@@ -476,9 +487,9 @@ int main (int argc, char **argv)
 
             // Point to store the transform from the robot to the camera
             point3dF32 translate_camera;
-            translate_camera.x = - 0.54;
-            translate_camera.y = 0;
-            translate_camera.z = 0.02;
+            translate_camera.x = -static_cast<float>(xValue)/100; // -0.5
+            translate_camera.y = -static_cast<float>(yValue)/100;
+            translate_camera.z =  static_cast<float>(zValue)/100; // 0.02 TODO: Test for 6-7cm
 
             // Transform from depth to color frame
             // ros::Time transform_ts_;
@@ -492,6 +503,11 @@ int main (int argc, char **argv)
             // a transformation matrix
             float theta_90 = 90 * M_PI/180;
             float theta_35 = 35 * M_PI/180;
+
+            transl_robot_camera << 1, 0, 0, translate_camera.x,
+                                   0, 1, 0, translate_camera.y,
+                                   0, 0, 1, translate_camera.z,
+                                   0, 0, 0,         1;
 
             rot_camera2robot_z << cos(theta_90),  -sin(theta_90),   0,  0,
                                   sin(theta_90),  cos(theta_90),    0,  0,
@@ -507,13 +523,6 @@ int main (int argc, char **argv)
                                   0,       1,     0,           0,
                            -sin(-theta_35),0, cos(-theta_35),  0,
                                     0,     0,      0,          1;
-
-
-
-            transl_robot_camera << 1, 0, 0, translate_camera.x,
-                                   0, 1, 0, translate_camera.y,
-                                   0, 0, 1, translate_camera.z,
-                                   0, 0, 0,         1;
 
            tr_camera_object << 1, 0, 0, object_position.x/1000,
                                0, 1, 0, object_position.y/1000,
