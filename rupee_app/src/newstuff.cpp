@@ -67,7 +67,6 @@ Rupee::Rupee(int argc, char** argv, QWidget *parent) :
   ui->exerciseArea->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
   ui->status_Area->setStyleSheet(" border-style: solid; border-color: grey; border-width: 3px;border-radius: 10px;");
   ui->addButton->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
-  ui->startButton->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
   for(int i = 0; i < 4; i++){
     exercise_buttons.button(i)->setStyleSheet("background-color: rgba(153,204,255,255); border-style: solid;border-color: grey;border-width: 3px;border-radius: 10px;");
     exercise_buttons.button(i)->setText("No exercises selected");
