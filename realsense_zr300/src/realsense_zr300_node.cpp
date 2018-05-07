@@ -72,16 +72,12 @@ int main (int argc, char **argv)
     //Hue (0 - 179)
     cvCreateTrackbar("Low Hue", control_window, &lowHue, 179);
     cvCreateTrackbar("High Hue", control_window, &highHue, 179);
-
     // Saturation (0 - 255)
     cvCreateTrackbar("Low Saturation", control_window, &lowSat, 255);
     cvCreateTrackbar("High Saturation", control_window, &highSat, 255);
-
     // Value (0 - 255)
     cvCreateTrackbar("Low Value", control_window, &lowVal, 255);
     cvCreateTrackbar("High Value", control_window, &highVal, 255);
-
-    // Canny low threshold (0 - 100)
     cvCreateTrackbar("Canny low threshold", control_window, &cannyThreshold, maxThreshold);
 
 /*        HSV GUI for Hand          */

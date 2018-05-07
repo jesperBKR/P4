@@ -40,11 +40,10 @@ offset = 0.09
 move = False
 loop = True
 exercise_type = 1
+previous_location = [1,1,1]
 exercise_difficulty = 1
 orientation = [0.962,  0.267,  -0.000,  0.067]#[0.999,0.01,-0.02,0.005]
 temp_location = [0,0,0]
-
-
 
 def cartesian_pose_client(position, orientation):
     """Send a cartesian goal to the action server."""
@@ -128,22 +127,36 @@ def exerciseRun(exercise,difficulty):
         print("Exercise type must be a number between 1-5.")
 
 def exerciseOne(difficulty):
+
     rand_pos = randomCoordinatesOne(difficulty)
     moveArm(object_location,orientation,"close")
     moveArm(rand_pos,orientation,"open")
-    print('Random position is :', rand_pos )
     moveArm(home_pose[0],home_pose[1],"")
+    print('Random position is :', rand_pos )
 def exerciseTwo(difficulty):
+    moveArm(home_pose[0],home_pose[1],"open")
     rand_pos = randomCoordinatesTwo(difficulty)
     moveArm(object_location,orientation,"close")
     moveArm(rand_pos,orientation,"")
     print('Random position is :', rand_pos )
+    while (object_location > 0.05):
+        pass
+    moveArm(home_pose[0],home_pose[1],"open")
+def exerciseThree(difficulty):
+
+    moveArm(object_location,orientation,"close")
+    #moveArm(assistive_location,assist_orientation,"")
+    #if (object_location[2] >0.05):
+    #    moveArm(home_pose[0],home_pose[1],"open")
+def exerciseFour(difficulty):
+    rand_pos_1 = randomCoordinatesOne(difficulty)
+    rand_pos_2 = randomCoordinatesOne(difficulty)
+    moveArm(object_location,orientation,"close")
+    while not hand_near:
+        moveArm(rand_pos_1,orientation,"")
+        moveArm(rand_pos_2,orientation,"")
     if (object_location[2] >0.05):
         moveArm(home_pose[0],home_pose[1],"open")
-def exerciseThree(difficulty):
-    pass
-def exerciseFour(difficulty):
-    pass
 def exerciseFive(difficulty):
     pass
 
@@ -206,23 +219,6 @@ def randomCoordinatesFive(difficulty):
     random_pos  = [random_x,random_y,random_z]
     return random_pos
 
-
-'''
-def unitParser( finger_value_):
-    finger_turn_command = [x/100.0 * finger_maxTurn for x in finger_value_]
-    finger_turn_ = finger_turn_command
-    return finger_turn_
-'''
-
-'''
-def gripperAction(status):
-	if status == "close":
-	    finger_val = [75,75,75]
-	elif status == "open":
-	    finger_val = [0,0,0]
-	return finger_val
-'''
-
 def handlerCallback(handler_data):
     global move
     global object_location
@@ -242,21 +238,28 @@ def JACOFeedbackPub(done):
     pub.publish(rep_done)
     rate.sleep()
 
-#rate = rospy.Rate
 if __name__ == '__main__':
     rospy.init_node(prefix + 'pose_action_client')
     moveArm(home_pose[0],home_pose[1],"open")
     while not rospy.is_shutdown():
+        print(object_location)
+        print(previous_location)
         rospy.Subscriber("JACO_goal", object_pos, handlerCallback)
         if(loop):
             JACOFeedbackPub(True)
             loop = False
-        if(move):
-            try:
-                exerciseRun(exercise_type,exercise_difficulty)
-                print('Rep done')
-                loop = True
-            except rospy.ROSInterruptException:
-                print "program interrupted before completion"
+        if ( object_location[0]-0.05 <= previous_location[0] <= object_location[0]+0.05
+        and object_location[1]-0.05 <= previous_location[1] <= object_location[1]+0.05):
+            print('Move object to proceed')
         else:
-            print('Waiting for handler')
+            if(move):
+                try:
+
+                    exerciseRun(exercise_type,exercise_difficulty)
+                    print('Rep done')
+                    loop = True
+                    previous_location = object_location
+                except rospy.ROSInterruptException:
+                    print "program interrupted before completion"
+            else:
+                print('Waiting for handler')
