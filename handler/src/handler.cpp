@@ -35,10 +35,10 @@ public:
   //Input values from GUI: reps, diff, type, and if running (run)
   void guiCallback(const rupee_msgs::Setup& gui_msg){
     ROS_INFO("Reps: [%d], Difficulty: [%d], Exercise Type: [%d], Move: [%d]", gui_msg.reps,gui_msg.diff,gui_msg.type, gui_msg.run);
-    if(gui_msg.reps == 0 /*|| !gui_msg.run*/){ //If gui not paused (reps = 0) or started (run = false) then it should not start
+    if(gui_msg.reps == 0 || !gui_msg.run){ //If gui not paused (reps = 0) or started (run = false) then it should not start
       start = false;
       if(!gui_msg.run){
-        //rep = 0;
+        rep = 0;
       }
     }
     else{
@@ -66,7 +66,7 @@ public:
   //Object position, xyz... What should we do if it cannot find the object? Is it still publishing a point?
   void positionCallback(const rupee_msgs::camera& position_msg){
     ROS_INFO("Postion x:[%f], y: [%f], z: [%f]", position_msg.location.x,position_msg.location.y,position_msg.location.z);
-    if(start && position_msg.detected.data){
+    if(start && position_msg.detected.data && moveit.location.z <0.05){
     moveit.move.data = true;
     }
     else{
