@@ -10,7 +10,7 @@ To be able to use this package the following prerequisites are required before u
 * [ROS Kinetic Kame](http://wiki.ros.org/kinetic "ROS Kinetic Kame")
 * [Kinova-ROS](https://github.com/Kinovarobotics/kinova-ros "Kinova ROS Package")
 * [Librealsense legacy release](https://github.com/IntelRealSense/librealsense/blob/v1.12.1/doc/installation.md "librealsense")
-* [Some realsense SDK](https://software.intel.com/sites/products/realsense/intro/getting_started.html "RealSense SDK")
+* [Intel® RealSense™ SDK for Linux](https://software.intel.com/sites/products/realsense/intro/getting_started.html "RealSense SDK")
 * [OpenCV 2.4 or newer](https://opencv.org/releases.html "OpenCV")
 * [Qt 4.0 or newer](https://www.qt.io/downlo "Qt")
 
